@@ -19,25 +19,25 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,100">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="Top_bar0">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="Top_bar1">
         <item>
-         <widget class="QSlider" name="horizontalSlider">
+         <widget class="QSlider" name="ID_slider">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="ID_label">
           <property name="text">
            <string>Frame _ID</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="last_frame">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -59,7 +59,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="start">
           <property name="text">
            <string/>
           </property>
@@ -71,7 +71,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="nextframe">
           <property name="font">
            <font>
             <bold>true</bold>
@@ -95,12 +95,66 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="3,8">
+     <layout class="QHBoxLayout" name="H_Lists" stretch="25,25,50">
+      <item>
+       <layout class="QVBoxLayout" name="Anim_UI">
+        <item>
+         <widget class="QListView" name="Anim_List"/>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="Anim_Params">
+          <item>
+           <widget class="QLineEdit" name="P1">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="P2">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="P3">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
       <item>
        <widget class="QListWidget" name="listWidget"/>
       </item>
       <item>
-       <widget class="QGraphicsView" name="graphicsView"/>
+       <layout class="QVBoxLayout" name="Right_Preview" stretch="75,25">
+        <item>
+         <widget class="QGraphicsView" name="Preview_View"/>
+        </item>
+        <item>
+         <widget class="QListWidget" name="Image_List"/>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -123,6 +177,7 @@
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
+    <addaction name="actionImport_Image"/>
     <addaction name="actionExport"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
@@ -168,6 +223,11 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionImport_Image">
+   <property name="text">
+    <string>Import Image...</string>
    </property>
   </action>
  </widget>
