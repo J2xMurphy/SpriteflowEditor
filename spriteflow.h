@@ -8,10 +8,10 @@
 #include <QDebug>
 #include <QGraphicsItem>
 
-QGraphicsScene * EZScene = nullptr;
+extern QGraphicsScene * EZScene;
 
 class spriteflow : public QGraphicsItem{
-    Q_OBJECT
+//    Q_OBJECT
     QList<std::tuple<QString,int,int>> anim_list;
     QList<std::tuple<int,int>> changeframes;
     QList<std::tuple<int,QPixmap>> imgframes;

@@ -4,7 +4,6 @@ bool setScene(QGraphicsScene* scene)
 {
     if (scene == nullptr)
     return 0;
-
     EZScene = scene;
     return 1;
 }
@@ -93,9 +92,9 @@ void spriteflow::inheritPos(int * p1, int *p2)
 
 bool spriteflow::sendToScene()
 {
-    if (EZScene == nullptr)
-        return 0;
-    EZScene->addItem(this);
+//    if (EZScene == nullptr)
+//        return 0;
+//    EZScene->addItem(this);
     return 1;
 }
 
