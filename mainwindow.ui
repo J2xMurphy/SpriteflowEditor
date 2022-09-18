@@ -99,7 +99,7 @@
       <item>
        <layout class="QVBoxLayout" name="Anim_UI">
         <item>
-         <widget class="QListView" name="Anim_List"/>
+         <widget class="QTableWidget" name="Anim_List"/>
         </item>
         <item>
          <layout class="QHBoxLayout" name="Anim_Params">
@@ -144,7 +144,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QListWidget" name="listWidget"/>
+       <widget class="QTableWidget" name="Change_List"/>
       </item>
       <item>
        <layout class="QVBoxLayout" name="Right_Preview" stretch="75,25">
@@ -152,7 +152,7 @@
          <widget class="QGraphicsView" name="Preview_View"/>
         </item>
         <item>
-         <widget class="QListWidget" name="Image_List"/>
+         <widget class="QTableWidget" name="Image_List"/>
         </item>
        </layout>
       </item>
