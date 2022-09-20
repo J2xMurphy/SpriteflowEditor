@@ -9,8 +9,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     populate_pointers();
-    EZScene = new QGraphicsScene;
-    Pre_View->setScene(EZScene);
+    setupScene();
+    imgList = new QList<imgdata>;
+    model = new QStandardItemModel();
+    Image_Table->setModel(model);
 }
 
 MainWindow::~MainWindow()
@@ -18,10 +20,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::setupScene()
+{
+    EZScene = new QGraphicsScene;
+    Pre_View->setScene(EZScene);
+}
+
 void MainWindow::populate_pointers(){
 Pre_View = findChild<QGraphicsView*>("Preview_View");
 Changeframe_Table = findChild<QTableWidget*>("Change_List");
-Image_Table = findChild<QTableWidget*>("Image_List");
+Image_Table = findChild<QTableView*>("Image_List");
 Anim_Table = findChild<QTableWidget*>("Anim_List");
 ID_Slider = findChild<QSlider*>("ID_slider");
 }
@@ -48,13 +56,6 @@ void MainWindow::on_ID_slider_sliderMoved(int position)
 {
 
 }
-
-
-void MainWindow::on_Image_List_cellDoubleClicked(int row, int column)
-{
-
-}
-
 
 void MainWindow::on_Change_List_cellDoubleClicked(int row, int column)
 {
@@ -108,15 +109,39 @@ void MainWindow::on_actionImport_Image_triggered()
 {
     QString dir;
     dir = QFileDialog::getOpenFileName(this,
-        "Open...", "", "(*.jpg);;(*.png);;(*.jpeg)");
+        "Open...", "", "(*.jpg *.png jpeg)");
     openImage(dir);
 }
 
 void MainWindow::openImage(QString dir)
 {
     QPixmap qxp((QString(dir)));
-    QStandardItem * whee = new QStandardItem(1,2);
+    QString imgname = dir.sliced(dir.lastIndexOf("/")+1);
+    model->appendRow(new QStandardItem(imgname));
 
-    Image_Table->set
+    imgdata newImg;
+    newImg.name = imgname;
+    newImg.img = qxp;
+    imgList->append(newImg);
+
+    EZScene->clear();
     EZScene->addPixmap(qxp);
+
+}
+
+void MainWindow::on_Image_List_doubleClicked(const QModelIndex &index)
+{
+    EZScene->clear();
+    QString target = index.data().toString();
+    EZScene->addPixmap(getImage(target));
+}
+
+QPixmap MainWindow::getImage(QString target)
+{
+    for (imgdata id : *imgList){
+        if (target == id.name)
+            return id.img;
+    }
+    QPixmap fail;
+    return fail;
 }

@@ -20,6 +20,11 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+struct imgdata{
+    QString name;
+    QPixmap img;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -29,12 +34,19 @@ class MainWindow : public QMainWindow
     QTableView    * Anim_Table;
     QSlider       * ID_Slider;
 
+    QList<imgdata> * imgList;
+    QStandardItemModel * model;
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void populate_pointers();
 
+    void setupScene();
+
     void openImage(QString);
+
+    QPixmap getImage(QString);
 
 private slots:
     void on_last_frame_clicked();
@@ -44,8 +56,6 @@ private slots:
     void on_nextframe_clicked();
 
     void on_ID_slider_sliderMoved(int position);
-
-    void on_Image_List_cellDoubleClicked(int row, int column);
 
     void on_Change_List_cellDoubleClicked(int row, int column);
 
@@ -64,6 +74,8 @@ private slots:
     void on_actionSettings_triggered();
 
     void on_actionImport_Image_triggered();
+
+    void on_Image_List_doubleClicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;
