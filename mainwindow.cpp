@@ -11,8 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
     populate_pointers();
     setupScene();
     imgList = new QList<imgdata>;
-    model = new QStandardItemModel();
-    Image_Table->setModel(model);
+    imgmodel = new QStandardItemModel();
+    Image_Table->setModel(imgmodel);
 }
 
 MainWindow::~MainWindow()
@@ -24,6 +24,9 @@ void MainWindow::setupScene()
 {
     EZScene = new QGraphicsScene;
     Pre_View->setScene(EZScene);
+    previewPixmap = new Spriteflow();
+    setScene(EZScene);
+    previewPixmap->sendToScene();
 }
 
 void MainWindow::populate_pointers(){
@@ -117,28 +120,26 @@ void MainWindow::openImage(QString dir)
 {
     QPixmap qxp((QString(dir)));
     QString imgname = dir.sliced(dir.lastIndexOf("/")+1);
-    model->appendRow(new QStandardItem(imgname));
+    imgmodel->appendRow(new QStandardItem(imgname));
 
     imgdata newImg;
     newImg.name = imgname;
     newImg.img = qxp;
     imgList->append(newImg);
 
-    EZScene->clear();
-    EZScene->addPixmap(qxp);
+    previewPixmap->play(qxp);
 
 }
 
 void MainWindow::on_Image_List_doubleClicked(const QModelIndex &index)
 {
-    EZScene->clear();
     QString target = index.data().toString();
-    EZScene->addPixmap(getImage(target));
+    previewPixmap->play(getImage(target));
 }
 
 QPixmap MainWindow::getImage(QString target)
 {
-    for (imgdata id : *imgList){
+    for(imgdata id : *imgList){
         if (target == id.name)
             return id.img;
     }

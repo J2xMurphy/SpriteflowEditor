@@ -8,7 +8,7 @@ bool setScene(QGraphicsScene* scene)
     return 1;
 }
 
-spriteflow::spriteflow()
+Spriteflow::Spriteflow()
 {
     if (x==nullptr && y==nullptr)
     {
@@ -29,56 +29,64 @@ spriteflow::spriteflow()
  * }
 */
 
-spriteflow::spriteflow(int * p1, int * p2)
+Spriteflow::Spriteflow(int * p1, int * p2)
 {
     inheritPos(p1,p2);
     linked = 1;
 }
 
-void spriteflow::update()
+void Spriteflow::update()
 {
-    if (playing){
-        ID++;
+    if (!playing){
+        return;
     }
+    ID++;
+    if (int tmp = isChangeFrame() > -1)
+        play(tmp);
 }
 
-void spriteflow::addAnim(QString name, int sframe, int animID)
+void Spriteflow::addAnim(QString name, int sframe, int animID)
 {
     anim_list.append({name,sframe,animID});
 }
 
-void spriteflow::addChangeframe(int cgoto, int clabel)
+void Spriteflow::addChangeframe(int cgoto, int clabel)
 {
     changeframes.append({cgoto,clabel});
 }
 
-void spriteflow::addImgFrame(int imgID, QPixmap img)
+void Spriteflow::addImgFrame(int imgID, QPixmap img)
 {
-    imgframes.append({imgID,img});
+    images.append(img);
+    assert(images.size()>0);
+    imgframes.append({imgID,&images[images.size()-1]});
 }
 
-void spriteflow::addImgFrame(int imgID, int ref)
+void Spriteflow::addImgFrame(int imgID, int ref)
 {
-    imgframes.append({imgID,images[ref]});
+    imgframes.append({imgID,&images[ref]});
 }
 
-void spriteflow::addImage(QString img)
+void Spriteflow::addImage(QPixmap img)
 {
     images.append(img);
 }
 
-void spriteflow::play(QString img)
+void Spriteflow::play(QPixmap img)
 {
     playing = true;
+    this->setPixmap(img);
+
 }
 
-void spriteflow::play(int IID)
+void Spriteflow::play(int IID)
 {
     playing = true;
     ID = IID;
+    setImgFrame(IID);
 }
 
-void spriteflow::inheritPos(int * p1, int *p2)
+void Spriteflow::inheritPos(int * p1, int *p2)
 {
     if (linked)
     {
@@ -90,38 +98,58 @@ void spriteflow::inheritPos(int * p1, int *p2)
     linked = true;
 }
 
-bool spriteflow::sendToScene()
+bool Spriteflow::sendToScene()
 {
-//    if (EZScene == nullptr)
-//        return 0;
-//    EZScene->addItem(this);
+    if (EZScene == nullptr)
+        return 0;
+    EZScene->addItem(this);
     return 1;
 }
 
-bool spriteflow::sendToScene(QGraphicsScene *scene)
+bool Spriteflow::sendToScene(QGraphicsScene *scene)
 {
     scene->addItem(this);
     return 0;
 }
 
-int spriteflow::contains(QString target)
+int Spriteflow::contains(QString target)
 {
-    for (std::tuple<QString,int,int> element: anim_list)
+    for (const anim &element: anim_list)
     {
-        if (target.compare(std::get<QString>(element)))
-            return std::get<1>(element);
+        if (target.compare(element.name))
+            return element.start;
     }
     return -1;
 }
 
-int spriteflow::contains(int index)
+int Spriteflow::contains(int index)
 {
     if (index>anim_list.size())
         return -1;
-    return  std::get<1>(anim_list[index]);
+    return  (anim_list[index]).start;
 }
 
-void spriteflow::updateparams()
+int Spriteflow::isChangeFrame()
+{
+    for (ChangeFrame c:changeframes){
+        if (ID==c.goTo)
+            return c.label;
+    }
+    return -1;
+}
+
+void Spriteflow::setImgFrame(int IDD)
+{
+    for (const ImgFrame fimg:imgframes)
+    {
+        if (fimg.ID == IDD){
+            QPixmap * ptr = fimg.img;
+            this->setPixmap(*ptr);
+        }
+    }
+}
+
+void Spriteflow::updateparams()
 {
     setPos(qreal(*x),qreal(*y));
 }

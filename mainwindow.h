@@ -34,8 +34,9 @@ class MainWindow : public QMainWindow
     QTableView    * Anim_Table;
     QSlider       * ID_Slider;
 
-    QList<imgdata> * imgList;
-    QStandardItemModel * model;
+    QList<imgdata>     * imgList;
+    QStandardItemModel * imgmodel;
+    Spriteflow         * previewPixmap;
 
 public:
     MainWindow(QWidget *parent = nullptr);

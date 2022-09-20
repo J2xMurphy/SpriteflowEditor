@@ -6,16 +6,36 @@
 #include <QPixmap>
 #include <QGraphicsScene>
 #include <QDebug>
-#include <QGraphicsItem>
+#include <QGraphicsPixmapItem>
 
 extern QGraphicsScene * EZScene;
 
-class spriteflow : public QGraphicsItem{
+struct anim
+{
+    QString name;
+    int start;
+    int ID;
+};
+
+struct ChangeFrame
+{
+    int goTo;
+    int label;
+};
+
+struct ImgFrame
+{
+    int ID;
+    QPixmap * img;
+};
+
+class Spriteflow : public QGraphicsPixmapItem{
 //    Q_OBJECT
-    QList<std::tuple<QString,int,int>> anim_list;
-    QList<std::tuple<int,int>> changeframes;
-    QList<std::tuple<int,QPixmap>> imgframes;
+    QList<anim> anim_list;
+    QList<ChangeFrame> changeframes; //Consider making a hash map for easier searching
+    QList<ImgFrame> imgframes;
     QList<QPixmap> images;
+
     float ID, rate;
     int *x=nullptr, *y=nullptr, *depth=nullptr;
     bool linked = false;
@@ -24,23 +44,25 @@ class spriteflow : public QGraphicsItem{
     //TODO
     //RenderObject * parent;
     //This would require a specific parent to function, which is not intended.
-
-    spriteflow();
-    spriteflow(int*, int*);        //Constructor to auto inherit position
+public:
+    Spriteflow();
+    Spriteflow(int*, int*);        //Constructor to auto inherit position
 //    spriteflow(RenderObject);
     void update();                 //Call per frame to update image
     void addAnim(QString,int,int); //Name points to starting frame ID
     void addChangeframe(int,int);  //When A frame is reached go to B frame
     void addImgFrame(int,QPixmap); //When A frame is reached, set img
     void addImgFrame(int,int);     //When A frame is reached, set list img
-    void addImage(QString);        //Adds img into saved list
-    void play(QString);            //Plays anim from list by name
+    void addImage(QPixmap);        //Adds img into saved list
+    void play(QPixmap);            //Plays anim from list by name
     void play(int);                //Sets current anim to int
     void inheritPos(int*, int*);   //Inherits cordinates from parent
     bool sendToScene();
     bool sendToScene(QGraphicsScene*);
     int contains(QString);
     int contains(int);
+    int isChangeFrame();
+    void setImgFrame(int);
 
 public slots:
     void updateparams();
