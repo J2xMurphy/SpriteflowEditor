@@ -99,6 +99,13 @@
       <item>
        <layout class="QVBoxLayout" name="Anim_UI">
         <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>New Changeframe</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QTableWidget" name="Anim_List"/>
         </item>
         <item>

@@ -15,6 +15,8 @@
 #include <QPixmap>
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include <QSpinBox>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -77,6 +79,8 @@ private slots:
     void on_actionImport_Image_triggered();
 
     void on_Image_List_doubleClicked(const QModelIndex &index);
+
+    void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;

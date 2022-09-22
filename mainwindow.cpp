@@ -146,3 +146,38 @@ QPixmap MainWindow::getImage(QString target)
     QPixmap fail;
     return fail;
 }
+
+void MainWindow::on_pushButton_clicked()
+{
+    QDialog cf_create(this);
+    QHBoxLayout cf_layout(&cf_create);
+    cf_create.setWindowTitle("New Changeframe");
+
+    auto goto_title = new QLabel("Goto:");
+    cf_layout.addWidget(goto_title);
+    QSpinBox * gotobox = new QSpinBox();
+    cf_layout.addWidget(gotobox);
+
+    auto space1 = new QSpacerItem(2,2);
+    cf_layout.addItem(space1);
+
+    auto label_title = new QLabel("Label:");
+    cf_layout.addWidget(label_title);
+    QSpinBox * labelbox = new QSpinBox();
+    cf_layout.addWidget(labelbox);
+
+    auto accept_button = new QPushButton("Accept");
+    cf_layout.addWidget(accept_button);
+    QObject::connect(accept_button,SIGNAL(clicked()),&cf_create,SLOT(accept()));
+
+    cf_create.exec();
+    previewPixmap->addChangeframe(gotobox->value(),labelbox->value());
+
+    delete goto_title;
+    delete gotobox;
+//  delete space1; Results in a SEGFAULT for some reason
+    delete label_title;
+    delete labelbox;
+    delete accept_button;
+
+}
