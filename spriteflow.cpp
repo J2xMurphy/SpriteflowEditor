@@ -8,6 +8,11 @@ bool setScene(QGraphicsScene* scene)
     return 1;
 }
 
+float Spriteflow::getID() const
+{
+    return ID;
+}
+
 Spriteflow::Spriteflow()
 {
     if (x==nullptr && y==nullptr)
@@ -41,7 +46,8 @@ void Spriteflow::update()
         return;
     }
     ID++;
-    if (int tmp = isChangeFrame() > -1)
+    int tmp = isChangeFrame();
+    if (tmp > -1)
         play(tmp);
 }
 
@@ -114,7 +120,7 @@ bool Spriteflow::sendToScene(QGraphicsScene *scene)
 
 int Spriteflow::contains(QString target)
 {
-    for (const anim &element: anim_list)
+    for (const Anim &element: anim_list)
     {
         if (target.compare(element.name))
             return element.start;
@@ -147,6 +153,21 @@ void Spriteflow::setImgFrame(int IDD)
             this->setPixmap(*ptr);
         }
     }
+}
+
+QList<ChangeFrame>* Spriteflow::getChangeFrame()
+{
+    return &changeframes;
+}
+
+QList<ImgFrame>* Spriteflow::getImageFrame()
+{
+    return &imgframes;
+}
+
+QList<Anim>* Spriteflow::getAnim()
+{
+    return &anim_list;
 }
 
 void Spriteflow::updateparams()

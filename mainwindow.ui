@@ -95,18 +95,11 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="H_Lists" stretch="25,25,50">
+     <layout class="QHBoxLayout" name="H_Lists" stretch="25,0,50">
       <item>
        <layout class="QVBoxLayout" name="Anim_UI">
         <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="text">
-           <string>New Changeframe</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTableWidget" name="Anim_List"/>
+         <widget class="QTableView" name="Anim_List"/>
         </item>
         <item>
          <layout class="QHBoxLayout" name="Anim_Params">
@@ -151,7 +144,18 @@
        </layout>
       </item>
       <item>
-       <widget class="QTableWidget" name="Change_List"/>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>New Changeframe</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableView" name="Change_List"/>
+        </item>
+       </layout>
       </item>
       <item>
        <layout class="QVBoxLayout" name="Right_Preview" stretch="75,0">

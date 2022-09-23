@@ -17,6 +17,8 @@
 #include <QStandardItem>
 #include <QSpinBox>
 #include <QObject>
+#include <QTimer>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -35,10 +37,13 @@ class MainWindow : public QMainWindow
     QTableView    * Image_Table;
     QTableView    * Anim_Table;
     QSlider       * ID_Slider;
+    QLabel        * ID_Counter;
 
     QList<imgdata>     * imgList;
     QStandardItemModel * imgmodel;
+    QStandardItemModel * changeframemodel;
     Spriteflow         * previewPixmap;
+    QTimer             * frametime;
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -52,6 +57,8 @@ public:
     QPixmap getImage(QString);
 
 private slots:
+    void update_Pixmap();
+
     void on_last_frame_clicked();
 
     void on_start_clicked();
@@ -59,10 +66,6 @@ private slots:
     void on_nextframe_clicked();
 
     void on_ID_slider_sliderMoved(int position);
-
-    void on_Change_List_cellDoubleClicked(int row, int column);
-
-    void on_Anim_List_cellDoubleClicked(int row, int column);
 
     void on_actionNew_triggered();
 

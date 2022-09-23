@@ -10,9 +10,20 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     populate_pointers();
     setupScene();
+
     imgList = new QList<imgdata>;
     imgmodel = new QStandardItemModel();
+    changeframemodel = new QStandardItemModel();
+
     Image_Table->setModel(imgmodel);
+    Changeframe_Table->setModel(changeframemodel);
+    changeframemodel->setHorizontalHeaderItem(0,new QStandardItem("Goto"));
+    changeframemodel->setHorizontalHeaderItem(1,new QStandardItem("Label"));
+
+    frametime = new QTimer;
+    frametime->setInterval(200);
+//    frametime->callOnTimeout(this,update_Pixmap());
+    connect(frametime,SIGNAL(timeout()),this,SLOT(update_Pixmap()));
 }
 
 MainWindow::~MainWindow()
@@ -31,10 +42,11 @@ void MainWindow::setupScene()
 
 void MainWindow::populate_pointers(){
 Pre_View = findChild<QGraphicsView*>("Preview_View");
-Changeframe_Table = findChild<QTableWidget*>("Change_List");
+Changeframe_Table = findChild<QTableView*>("Change_List");
 Image_Table = findChild<QTableView*>("Image_List");
-Anim_Table = findChild<QTableWidget*>("Anim_List");
+Anim_Table = findChild<QTableView*>("Anim_List");
 ID_Slider = findChild<QSlider*>("ID_slider");
+ID_Counter = findChild<QLabel*>("ID_label");
 }
 
 void MainWindow::on_last_frame_clicked()
@@ -45,7 +57,10 @@ void MainWindow::on_last_frame_clicked()
 
 void MainWindow::on_start_clicked()
 {
-
+    if(!frametime->isActive())
+        frametime->start();
+    else
+        frametime->stop();
 }
 
 
@@ -59,18 +74,6 @@ void MainWindow::on_ID_slider_sliderMoved(int position)
 {
 
 }
-
-void MainWindow::on_Change_List_cellDoubleClicked(int row, int column)
-{
-
-}
-
-
-void MainWindow::on_Anim_List_cellDoubleClicked(int row, int column)
-{
-
-}
-
 
 void MainWindow::on_actionNew_triggered()
 {
@@ -147,6 +150,13 @@ QPixmap MainWindow::getImage(QString target)
     return fail;
 }
 
+void MainWindow::update_Pixmap()
+{
+    previewPixmap->update();
+    ID_Counter->setText(QString::number(previewPixmap->getID()));
+    qDebug() << QString::number(previewPixmap->getID());
+}
+
 void MainWindow::on_pushButton_clicked()
 {
     QDialog cf_create(this);
@@ -172,6 +182,9 @@ void MainWindow::on_pushButton_clicked()
 
     cf_create.exec();
     previewPixmap->addChangeframe(gotobox->value(),labelbox->value());
+    changeframemodel->appendRow(
+                QList<QStandardItem*>({new QStandardItem((QString::number(gotobox->value()))),
+                                       new QStandardItem(QString::number(labelbox->value()))}));
 
     delete goto_title;
     delete gotobox;

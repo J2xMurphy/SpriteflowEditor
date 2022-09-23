@@ -10,7 +10,7 @@
 
 extern QGraphicsScene * EZScene;
 
-struct anim
+struct Anim
 {
     QString name;
     int start;
@@ -31,7 +31,7 @@ struct ImgFrame
 
 class Spriteflow : public QGraphicsPixmapItem{
 //    Q_OBJECT
-    QList<anim> anim_list;
+    QList<Anim> anim_list;
     QList<ChangeFrame> changeframes; //Consider making a hash map for easier searching
     QList<ImgFrame> imgframes;
     QList<QPixmap> images;
@@ -63,6 +63,11 @@ public:
     int contains(int);
     int isChangeFrame();
     void setImgFrame(int);
+    QList<ChangeFrame>* getChangeFrame();
+    QList<ImgFrame>* getImageFrame();
+    QList<Anim>* getAnim();
+
+    float getID() const;
 
 public slots:
     void updateparams();
