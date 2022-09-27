@@ -14,15 +14,24 @@ MainWindow::MainWindow(QWidget *parent)
     imgList = new QList<imgdata>;
     imgmodel = new QStandardItemModel();
     changeframemodel = new QStandardItemModel();
+    animModel = new QStandardItemModel();
 
     Image_Table->setModel(imgmodel);
     Changeframe_Table->setModel(changeframemodel);
+    Anim_Table->setModel(animModel);
+
     changeframemodel->setHorizontalHeaderItem(0,new QStandardItem("Goto"));
     changeframemodel->setHorizontalHeaderItem(1,new QStandardItem("Label"));
+    Changeframe_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    animModel->setHorizontalHeaderItem(0,new QStandardItem("Name:"));
+    animModel->setHorizontalHeaderItem(1,new QStandardItem("Label:"));
+    animModel->setHorizontalHeaderItem(2,new QStandardItem("Image:"));
+    Anim_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
 
     frametime = new QTimer;
     frametime->setInterval(200);
-//    frametime->callOnTimeout(this,update_Pixmap());
     connect(frametime,SIGNAL(timeout()),this,SLOT(update_Pixmap()));
 }
 
@@ -129,6 +138,7 @@ void MainWindow::openImage(QString dir)
     newImg.name = imgname;
     newImg.img = qxp;
     imgList->append(newImg);
+    previewPixmap->addImage(imgname,qxp);
 
     previewPixmap->play(qxp);
 
@@ -142,7 +152,7 @@ void MainWindow::on_Image_List_doubleClicked(const QModelIndex &index)
 
 QPixmap MainWindow::getImage(QString target)
 {
-    for(imgdata id : *imgList){
+    for(const imgdata id : *imgList){
         if (target == id.name)
             return id.img;
     }
@@ -157,7 +167,7 @@ void MainWindow::update_Pixmap()
     qDebug() << QString::number(previewPixmap->getID());
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_NewChangeframe_clicked()
 {
     QDialog cf_create(this);
     QHBoxLayout cf_layout(&cf_create);
@@ -180,11 +190,13 @@ void MainWindow::on_pushButton_clicked()
     cf_layout.addWidget(accept_button);
     QObject::connect(accept_button,SIGNAL(clicked()),&cf_create,SLOT(accept()));
 
-    cf_create.exec();
+    if (cf_create.exec())
+    {
     previewPixmap->addChangeframe(gotobox->value(),labelbox->value());
     changeframemodel->appendRow(
                 QList<QStandardItem*>({new QStandardItem((QString::number(gotobox->value()))),
                                        new QStandardItem(QString::number(labelbox->value()))}));
+    }
 
     delete goto_title;
     delete gotobox;
@@ -193,4 +205,66 @@ void MainWindow::on_pushButton_clicked()
     delete labelbox;
     delete accept_button;
 
+}
+
+void MainWindow::on_NewAnimation_clicked()
+{
+
+    QDialog na_create(this);
+    QHBoxLayout na_layout(&na_create);
+    na_create.setWindowTitle("New Animation");
+
+    auto name_title = new QLabel("Name:");
+    na_layout.addWidget(name_title);
+    auto * namebox = new QLineEdit();
+    na_layout.addWidget(namebox);
+
+    auto space1 = new QSpacerItem(2,2);
+    na_layout.addItem(space1);
+
+    auto label_title = new QLabel("Label:");
+    na_layout.addWidget(label_title);
+    auto labelbox = new QSpinBox();
+    na_layout.addWidget(labelbox);
+
+//    na_layout.addItem(space1);
+
+    auto img_title = new QLabel("Img:");
+    na_layout.addWidget(img_title);
+    auto img_select = new QComboBox();
+    img_select->addItems(imgNames());
+    na_layout.addWidget(img_select);
+
+    auto accept_button = new QPushButton("Accept");
+    na_layout.addWidget(accept_button);
+    QObject::connect(accept_button,SIGNAL(clicked()),&na_create,SLOT(accept()));
+
+    qDebug() << "Reached...";
+    if (na_create.exec())
+    {
+        qDebug() << "Going...";
+        previewPixmap->addImgFrame(namebox->text(),labelbox->value(),
+                                   img_select->currentText());
+        animModel->appendRow(
+                    QList<QStandardItem*>({new QStandardItem((namebox->text())),
+                                           new QStandardItem(QString::number(labelbox->value())),
+                                           new QStandardItem(img_select->currentText())}));
+    }
+
+    delete name_title;
+    delete namebox;
+    delete label_title;
+    delete labelbox;
+    delete img_title;
+    delete img_select;
+    delete accept_button;
+
+}
+
+QList<QString> MainWindow::imgNames()
+{
+    QList<QString> tmp;
+    for (const imgdata dt: *imgList)
+        tmp.append(dt.name);
+    return tmp;
 }

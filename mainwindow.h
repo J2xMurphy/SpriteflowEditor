@@ -19,6 +19,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QLabel>
+#include <QComboBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -42,6 +43,7 @@ class MainWindow : public QMainWindow
     QList<imgdata>     * imgList;
     QStandardItemModel * imgmodel;
     QStandardItemModel * changeframemodel;
+    QStandardItemModel * animModel;
     Spriteflow         * previewPixmap;
     QTimer             * frametime;
 
@@ -83,7 +85,11 @@ private slots:
 
     void on_Image_List_doubleClicked(const QModelIndex &index);
 
-    void on_pushButton_clicked();
+    void on_NewChangeframe_clicked();
+
+    void on_NewAnimation_clicked();
+
+    QList<QString> imgNames();
 
 private:
     Ui::MainWindow *ui;

@@ -1,4 +1,4 @@
-#ifndef SPRITEFLOW_H
+﻿#ifndef SPRITEFLOW_H
 #define SPRITEFLOW_H
 
 #include <QString>
@@ -7,15 +7,16 @@
 #include <QGraphicsScene>
 #include <QDebug>
 #include <QGraphicsPixmapItem>
+#include <iostream>
 
 extern QGraphicsScene * EZScene;
 
-struct Anim
-{
-    QString name;
-    int start;
-    int ID;
-};
+//struct Anim
+//{
+//    QString name;
+//    int start;
+//    int ID;
+//};
 
 struct ChangeFrame
 {
@@ -25,16 +26,23 @@ struct ChangeFrame
 
 struct ImgFrame
 {
+    QString name;
     int ID;
+    QPixmap * img;
+};
+
+struct imgPage
+{
+    QString name;
     QPixmap * img;
 };
 
 class Spriteflow : public QGraphicsPixmapItem{
 //    Q_OBJECT
-    QList<Anim> anim_list;
+//    QList<Anim> anim_list; Functionality moved to imgframes
     QList<ChangeFrame> changeframes; //Consider making a hash map for easier searching
     QList<ImgFrame> imgframes;
-    QList<QPixmap> images;
+    QList<imgPage> * images;
 
     float ID, rate;
     int *x=nullptr, *y=nullptr, *depth=nullptr;
@@ -47,27 +55,34 @@ class Spriteflow : public QGraphicsPixmapItem{
 public:
     Spriteflow();
     Spriteflow(int*, int*);        //Constructor to auto inherit position
-//    spriteflow(RenderObject);
     void update();                 //Call per frame to update image
-    void addAnim(QString,int,int); //Name points to starting frame ID
     void addChangeframe(int,int);  //When A frame is reached go to B frame
-    void addImgFrame(int,QPixmap); //When A frame is reached, set img
-    void addImgFrame(int,int);     //When A frame is reached, set list img
-    void addImage(QPixmap);        //Adds img into saved list
+    void addImgFrame(QString,int,QPixmap); //When A frame is reached, set img
+    void addImgFrame(QString,int,QString); //When A frame is reached, set img
+    void addImgFrame(QString,int,int);     //When A frame is reached, set list img
+    void addImage(QString,QPixmap);        //Adds img into saved list
     void play(QPixmap);            //Plays anim from list by name
     void play(int);                //Sets current anim to int
+    void play(QString);
     void inheritPos(int*, int*);   //Inherits cordinates from parent
     bool sendToScene();
     bool sendToScene(QGraphicsScene*);
-    int contains(QString);
-    int contains(int);
     int isChangeFrame();
+    int isAnim();
     void setImgFrame(int);
+    void ani(int);
+    QPixmap* findImg(QString);
     QList<ChangeFrame>* getChangeFrame();
     QList<ImgFrame>* getImageFrame();
-    QList<Anim>* getAnim();
 
-    float getID() const;
+//    spriteflow(RenderObject);
+
+//    void addAnim(QString,int,int); //Name points to starting frame ID
+//    int contains(QString);
+//    int contains(int);
+//    QList<Anim>* getAnim();
+
+    float getID();
 
 public slots:
     void updateparams();
