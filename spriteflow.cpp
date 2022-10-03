@@ -2,6 +2,7 @@
 
 bool setScene(QGraphicsScene* scene)
 {
+//  Checks if passed in scene actually exists.
     if (scene == nullptr)
     return 0;
     EZScene = scene;
@@ -15,55 +16,58 @@ float Spriteflow::getID()
 
 Spriteflow::Spriteflow()
 {
+    //If no parent is passed in, creates usable variables
     if (x==nullptr && y==nullptr)
     {
         x = new int(0);
         y = new int(0);
-        linked = true;
+        linked = false;
     }
     ID = 0;
     rate = 1;
     images = new QList<imgPage>;
 }
 
-/*spriteflow::spriteflow(RenderObject*)
- * {
- * parent = RenderObject;
- * x = RenderObject->*x;
- * y = RenderObject->*y;
- * linked = 1;
- * }
-*/
-
 Spriteflow::Spriteflow(int * p1, int * p2)
 {
+    //only positional variables are passed in, so linked is true
     inheritPos(p1,p2);
-    linked = 1;
+    linked = true;
     images = new QList<imgPage>;
 }
 
 void Spriteflow::update()
 {
-    if (!playing){
+    //Only run when playing is true
+    if (playing == false){
         return;
     }
+    //Change this to be affected by rate
     ID++;
+
+    //Checks if ID should be jumped
     int tmp = isChangeFrame();
     if (tmp > -1)
         play(tmp);
+
+    //Checks if the current picture should be changed
     tmp = isAnim();
     if (tmp > -1)
         ani(tmp);
+
+    //Make it to update parent xy
 }
 
 void Spriteflow::addChangeframe(int cgoto, int clabel)
 {
+    //Just adds the args to the changeframe list
     changeframes.append({cgoto,clabel});
     qDebug() << "Added Changeframe";
 }
 
 void Spriteflow::addImgFrame(QString name,int imgID, QPixmap img)
 {
+    //Adds the img to the imglist, then adds the image to imagefram
     images->append({name,new QPixmap(img)});
     assert(images->size()>0);
     imgframes.append({name,imgID,(images[images->size()-1].data()->img)});
@@ -72,24 +76,28 @@ void Spriteflow::addImgFrame(QString name,int imgID, QPixmap img)
 
 void Spriteflow::addImgFrame(QString name, int imgID, QString img)
 {
+    //Finds the image in the images list, then adds to imagframe
     imgframes.append({name,imgID,findImg(img)});
     qDebug() << "Added Animation";
 }
 
 void Spriteflow::addImgFrame(QString name,int imgID, int ref)
 {
+    //Adds to imageframe based on images array index
     imgframes.append({name,imgID,images[ref].data()->img});
     qDebug() << "Added Animation";
 }
 
 void Spriteflow::addImage(QString name,QPixmap img)
 {
+    //Adds the image to images list for later use
     images->append({name,new QPixmap(img)});
     qDebug() << "Added Image";
 }
 
 void Spriteflow::play(QPixmap img)
 {
+    //Resumes playback, and sets the current image to passed in image
     qDebug() << "Playing image";
     playing = true;
     this->setPixmap(img);
@@ -97,7 +105,9 @@ void Spriteflow::play(QPixmap img)
 
 void Spriteflow::play(int IID)
 {
-    qDebug() << "Playing int";
+    //Resumes playback, and sets the frame ID to argument and associated images
+    //Possibly unnecessary, as update basically does what setImgFrame(IID) does
+    qDebug() << "Playing index";
     playing = true;
     ID = IID;
     setImgFrame(IID);
@@ -105,13 +115,28 @@ void Spriteflow::play(int IID)
 
 void Spriteflow::play(QString name)
 {
+    //Resumes playback, and sets the current image to the saved QPixmap by name
     qDebug() << "Playing name";
+    playing = true;
     this->setPixmap(*findImg(name));
+}
+
+void Spriteflow::play()
+{
+    //Resumes playback, thats it.
+    playing = true;
+}
+
+void Spriteflow::stop()
+{
+    //Stops playback, thats it.
+    playing = false;
 }
 
 void Spriteflow::inheritPos(int * p1, int *p2)
 {
-    if (linked)
+    //Deletes x and y if I had to make my own
+    if (linked == false)
     {
         delete x;
         delete y;
@@ -123,6 +148,7 @@ void Spriteflow::inheritPos(int * p1, int *p2)
 
 bool Spriteflow::sendToScene()
 {
+    //Checks if global scene has been added, then adds itself to it
     if (EZScene == nullptr)
         return 0;
     EZScene->addItem(this);
@@ -131,6 +157,7 @@ bool Spriteflow::sendToScene()
 
 bool Spriteflow::sendToScene(QGraphicsScene *scene)
 {
+    //Given aspecific scene, will add myself to it
     scene->addItem(this);
     return 0;
 }
@@ -138,8 +165,11 @@ bool Spriteflow::sendToScene(QGraphicsScene *scene)
 
 int Spriteflow::isChangeFrame()
 {
+    //Checks frame ID against all goto statements, and sets returns the ID on hit.
+    qDebug() << "Checking changeframe:" << ID << changeframes.size();
     for (ChangeFrame c:changeframes){
         if (ID==c.goTo)
+            qDebug() << "Changeframe hit:" << c.goTo << c.label;
             return c.label;
     }
     return -1;
@@ -147,6 +177,7 @@ int Spriteflow::isChangeFrame()
 
 int Spriteflow::isAnim()
 {
+    //Checks all imageframes to see if the frame index matches. Returns array index isf found
     qDebug() << "Checking anim: " << ID << imgframes.size();
     int tmp = -1;
     for (ImgFrame fimg : *&imgframes){
@@ -162,6 +193,7 @@ int Spriteflow::isAnim()
 
 void Spriteflow::setImgFrame(int IDD)
 {
+    //Searches the imageframes for a ID hit, and sets the current pixmap to associated
     qDebug() << "Setting Image";
     for (ImgFrame fimg:imgframes)
     {
@@ -174,24 +206,27 @@ void Spriteflow::setImgFrame(int IDD)
 
 void Spriteflow::ani(int index)
 {
+    //sets image to array index, fails if too large
     qDebug() << "Setting anim" << index;
+    if (index > imgframes.size())
+        return;
     this->setPixmap(*imgframes.at(index).img);
 }
 
 QPixmap *Spriteflow::findImg(QString target)
 {
+    //Compares imgpages by name vs target, then returns the stored image on hit
     qDebug() << "Finding " << target;
     for (int i = 0; i<images->size();++i)
     {
         qDebug() << "Comparing " << target << " and " << images->at(i).name << i;
         if (target == images->at(i).name){
-            qDebug() << "Found";
-            qDebug() << target << images->at(i).name << i << " " << images->size()-1;
+            qDebug() << "Found" << target << images->at(i).name << i << " " << images->size()-1;
             QPixmap * tmp = images->at(i).img;
-            qDebug() << "Ending";
             return tmp;}
     }
     qDebug() << "Image Unfound" ;
+    //Upon failing, returns a new pixmap of dummy data
     return (new QPixmap("Dummy"));
 }
 
@@ -207,36 +242,6 @@ QList<ImgFrame>* Spriteflow::getImageFrame()
 
 void Spriteflow::updateparams()
 {
+    //Pulls data from the parent o update the pixmap position.
     setPos(qreal(*x),qreal(*y));
 }
-
-//********************************************
-//Animlist functions
-//********************************************
-
-//int Spriteflow::contains(QString target)
-//{
-//    for (const Anim &element: anim_list)
-//    {
-//        if (target.compare(element.name))
-//            return element.start;
-//    }
-//    return -1;
-//}
-
-//int Spriteflow::contains(int index)
-//{
-//    if (index>anim_list.size())
-//        return -1;
-//    return  (anim_list[index]).start;
-//}
-
-//QList<Anim>* Spriteflow::getAnim()
-//{
-//    return &anim_list;
-//}
-
-//void Spriteflow::addAnim(QString name, int sframe, int animID)
-//{
-//    anim_list.append({name,sframe,animID});
-//}

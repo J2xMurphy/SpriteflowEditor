@@ -22,6 +22,7 @@ set(PROJECT_SOURCES
         Images.qrc
         spriteflow.h
         spriteflow.cpp
+        STRINGS.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

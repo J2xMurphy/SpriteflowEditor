@@ -11,19 +11,14 @@
 
 extern QGraphicsScene * EZScene;
 
-//struct Anim
-//{
-//    QString name;
-//    int start;
-//    int ID;
-//};
-
+//When goto is hit, refers the class to change ID to label
 struct ChangeFrame
 {
     int goTo;
     int label;
 };
 
+//Associates ID to a name, and an ID to an image.
 struct ImgFrame
 {
     QString name;
@@ -31,6 +26,7 @@ struct ImgFrame
     QPixmap * img;
 };
 
+//Associates a name to an image. These actually should hold allocated data.
 struct imgPage
 {
     QString name;
@@ -38,56 +34,50 @@ struct imgPage
 };
 
 class Spriteflow : public QGraphicsPixmapItem{
-//    Q_OBJECT
-//    QList<Anim> anim_list; Functionality moved to imgframes
-    QList<ChangeFrame> changeframes; //Consider making a hash map for easier searching
-    QList<ImgFrame> imgframes;
-    QList<imgPage> * images;
+    QList<ChangeFrame> changeframes; //List of frames to jump to from a set frame ID
+    QList<ImgFrame> imgframes;       //List of identifiers and image to show on ID
+    QList<imgPage> * images;         //List of images in the sprite
 
-    float ID, rate;
-    int *x=nullptr, *y=nullptr, *depth=nullptr;
-    bool linked = false;
-    qreal scale;
-    bool playing = true;
-    //TODO
-    //RenderObject * parent;
-    //This would require a specific parent to function, which is not intended.
+    float ID;             //The current frame index
+    float rate;           //The amount the index changes per update
+    int *x=nullptr;       //The x position. Can be polled from parent
+    int *y=nullptr;       //The y position. Can be polled from parent
+    int *depth=nullptr;   //The depth determines what it is drawn on top of
+    bool linked = false;  //Refers to whether there is a parent attatched
+    qreal scale;          //Makes the image larger or smaller
+    bool playing = true;  //Determines whether update does anything or not
+
 public:
     Spriteflow();
     Spriteflow(int*, int*);        //Constructor to auto inherit position
     void update();                 //Call per frame to update image
     void addChangeframe(int,int);  //When A frame is reached go to B frame
-    void addImgFrame(QString,int,QPixmap); //When A frame is reached, set img
-    void addImgFrame(QString,int,QString); //When A frame is reached, set img
-    void addImgFrame(QString,int,int);     //When A frame is reached, set list img
+    void addImgFrame(QString,int,QPixmap); //When A frame is reached, set img to arg
+    void addImgFrame(QString,int,QString); //When A frame is reached, set img by name id
+    void addImgFrame(QString,int,int);     //When A frame is reached, set list img index
     void addImage(QString,QPixmap);        //Adds img into saved list
-    void play(QPixmap);            //Plays anim from list by name
-    void play(int);                //Sets current anim to int
-    void play(QString);
+    void play(QPixmap);            //Sets the current image to arg
+    void play(int);                //Sets the current image to arg by index
+    void play(QString);            //Sets the current image to name id
+    void play();                   //Sets playing to true
+    void stop();                   //Sets playing to false
     void inheritPos(int*, int*);   //Inherits cordinates from parent
-    bool sendToScene();
-    bool sendToScene(QGraphicsScene*);
-    int isChangeFrame();
-    int isAnim();
-    void setImgFrame(int);
-    void ani(int);
-    QPixmap* findImg(QString);
-    QList<ChangeFrame>* getChangeFrame();
-    QList<ImgFrame>* getImageFrame();
+    bool sendToScene();          //Draws the current image in the EZScene global variable
+    bool sendToScene(QGraphicsScene*);//Draws the current image in arg scene
+    int isChangeFrame();           //Returns the label associated if changeframe is known
+    int isAnim();                  //Returns the imageframe list index if ID matches
+    void setImgFrame(int);   //Sets the image to the stored imgframe based on IDD arg
+    void ani(int);           //Sets the image to the stored imgframe based in index arg
+    QPixmap* findImg(QString);     //Returns the image associated with a name
+    QList<ChangeFrame>* getChangeFrame();//Returns the changeframe list
+    QList<ImgFrame>* getImageFrame();//    Returns the imageframe list
 
-//    spriteflow(RenderObject);
-
-//    void addAnim(QString,int,int); //Name points to starting frame ID
-//    int contains(QString);
-//    int contains(int);
-//    QList<Anim>* getAnim();
-
-    float getID();
+    float getID();//Getter for current ID
 
 public slots:
-    void updateparams();
+    void updateparams();// Updates parameters from parent
 };
 
-bool setScene(QGraphicsScene*);
+bool setScene(QGraphicsScene*);//Sets Global Scene to arg. Returns 0 if arg is null
 
 #endif // SPRITEFLOW_H

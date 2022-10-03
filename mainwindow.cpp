@@ -10,7 +10,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     populate_pointers();
     setupScene();
+    freshenUp();
+    setupHeaders();
+}
 
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+bool MainWindow::freshenUp()
+{
+    frametime = 200;
     imgList = new QList<imgdata>;
     imgmodel = new QStandardItemModel();
     changeframemodel = new QStandardItemModel();
@@ -20,24 +31,10 @@ MainWindow::MainWindow(QWidget *parent)
     Changeframe_Table->setModel(changeframemodel);
     Anim_Table->setModel(animModel);
 
-    changeframemodel->setHorizontalHeaderItem(0,new QStandardItem("Goto"));
-    changeframemodel->setHorizontalHeaderItem(1,new QStandardItem("Label"));
-    Changeframe_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    animModel->setHorizontalHeaderItem(0,new QStandardItem("Name:"));
-    animModel->setHorizontalHeaderItem(1,new QStandardItem("Label:"));
-    animModel->setHorizontalHeaderItem(2,new QStandardItem("Image:"));
-    Anim_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-
-    frametime = new QTimer;
-    frametime->setInterval(200);
-    connect(frametime,SIGNAL(timeout()),this,SLOT(update_Pixmap()));
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
+    frametimer = new QTimer;
+    frametimer->setInterval(frametime);
+    connect(frametimer,SIGNAL(timeout()),this,SLOT(update_Pixmap()));
+    return true;
 }
 
 void MainWindow::setupScene()
@@ -47,6 +44,18 @@ void MainWindow::setupScene()
     previewPixmap = new Spriteflow();
     setScene(EZScene);
     previewPixmap->sendToScene();
+}
+
+void MainWindow::setupHeaders()
+{
+    changeframemodel->setHorizontalHeaderItem(0,new QStandardItem(GOTO_HEADER));
+    changeframemodel->setHorizontalHeaderItem(1,new QStandardItem(LABEL_HEADER));
+    Changeframe_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    animModel->setHorizontalHeaderItem(0,new QStandardItem(NAME_HEADER));
+    animModel->setHorizontalHeaderItem(1,new QStandardItem(LABEL_HEADER));
+    animModel->setHorizontalHeaderItem(2,new QStandardItem(IMAGE_HEADER));
+    Anim_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 void MainWindow::populate_pointers(){
@@ -66,10 +75,10 @@ void MainWindow::on_last_frame_clicked()
 
 void MainWindow::on_start_clicked()
 {
-    if(!frametime->isActive())
-        frametime->start();
+    if(!frametimer->isActive())
+        frametimer->start();
     else
-        frametime->stop();
+        frametimer->stop();
 }
 
 
@@ -86,7 +95,9 @@ void MainWindow::on_ID_slider_sliderMoved(int position)
 
 void MainWindow::on_actionNew_triggered()
 {
-
+    delete previewPixmap;
+    delete EZScene;
+    setupScene();
 }
 
 
@@ -116,7 +127,39 @@ void MainWindow::on_actionExport_triggered()
 
 void MainWindow::on_actionSettings_triggered()
 {
+    previewPixmap->stop();
+    QDialog settings(this);
+    QVBoxLayout s_layout(&settings);
+    settings.setWindowTitle(SETTINGS_TITLE);
 
+    //Section to edit frametime
+    QWidget ft(this);
+    QHBoxLayout ft_layout(&ft);
+    auto f_timer1 = new QLabel("Frametime:");
+    ft_layout.addWidget(f_timer1);
+    auto * timerbox = new QSpinBox();
+    ft_layout.addWidget(timerbox);
+    auto f_timer2 = new QLabel("ms");
+    ft_layout.addWidget(f_timer2);
+    s_layout.addWidget(&ft);
+    timerbox->setMaximum(9999);
+    timerbox->setValue(frametime);
+
+    auto accept_button = new QPushButton(ACCEPT_BUTTON);
+    s_layout.addWidget(accept_button);
+    QObject::connect(accept_button,SIGNAL(clicked()),&settings,SLOT(accept()));
+
+    if (settings.exec())
+    {
+        frametime = timerbox->value();
+        frametimer->setInterval(frametime);
+    }
+
+    delete f_timer1;
+    delete f_timer2;
+    delete timerbox;
+    delete accept_button;
+    previewPixmap->play();
 }
 
 
@@ -171,22 +214,23 @@ void MainWindow::on_NewChangeframe_clicked()
 {
     QDialog cf_create(this);
     QHBoxLayout cf_layout(&cf_create);
-    cf_create.setWindowTitle("New Changeframe");
+    cf_create.setWindowTitle(CHANGEFRAME_TITLE);
 
-    auto goto_title = new QLabel("Goto:");
+    auto goto_title = new QLabel(GOTO_HEADER":");
     cf_layout.addWidget(goto_title);
     QSpinBox * gotobox = new QSpinBox();
     cf_layout.addWidget(gotobox);
 
+    //Deleting unnecessary, gives segfault
     auto space1 = new QSpacerItem(2,2);
     cf_layout.addItem(space1);
 
-    auto label_title = new QLabel("Label:");
+    auto label_title = new QLabel(LABEL_HEADER":");
     cf_layout.addWidget(label_title);
     QSpinBox * labelbox = new QSpinBox();
     cf_layout.addWidget(labelbox);
 
-    auto accept_button = new QPushButton("Accept");
+    auto accept_button = new QPushButton(ACCEPT_BUTTON);
     cf_layout.addWidget(accept_button);
     QObject::connect(accept_button,SIGNAL(clicked()),&cf_create,SLOT(accept()));
 
@@ -194,27 +238,24 @@ void MainWindow::on_NewChangeframe_clicked()
     {
     previewPixmap->addChangeframe(gotobox->value(),labelbox->value());
     changeframemodel->appendRow(
-                QList<QStandardItem*>({new QStandardItem((QString::number(gotobox->value()))),
-                                       new QStandardItem(QString::number(labelbox->value()))}));
+        QList<QStandardItem*>({new QStandardItem((QString::number(gotobox->value()))),
+            new QStandardItem(QString::number(labelbox->value()))}));
     }
 
     delete goto_title;
     delete gotobox;
-//  delete space1; Results in a SEGFAULT for some reason
     delete label_title;
     delete labelbox;
     delete accept_button;
-
 }
 
 void MainWindow::on_NewAnimation_clicked()
 {
-
     QDialog na_create(this);
     QHBoxLayout na_layout(&na_create);
-    na_create.setWindowTitle("New Animation");
+    na_create.setWindowTitle(ANIMATION_TITLE);
 
-    auto name_title = new QLabel("Name:");
+    auto name_title = new QLabel(NAME_HEADER":");
     na_layout.addWidget(name_title);
     auto * namebox = new QLineEdit();
     na_layout.addWidget(namebox);
@@ -222,20 +263,18 @@ void MainWindow::on_NewAnimation_clicked()
     auto space1 = new QSpacerItem(2,2);
     na_layout.addItem(space1);
 
-    auto label_title = new QLabel("Label:");
+    auto label_title = new QLabel(LABEL_HEADER":");
     na_layout.addWidget(label_title);
     auto labelbox = new QSpinBox();
     na_layout.addWidget(labelbox);
 
-//    na_layout.addItem(space1);
-
-    auto img_title = new QLabel("Img:");
+    auto img_title = new QLabel(IMAGE_HEADER":");
     na_layout.addWidget(img_title);
     auto img_select = new QComboBox();
     img_select->addItems(imgNames());
     na_layout.addWidget(img_select);
 
-    auto accept_button = new QPushButton("Accept");
+    auto accept_button = new QPushButton(ACCEPT_BUTTON);
     na_layout.addWidget(accept_button);
     QObject::connect(accept_button,SIGNAL(clicked()),&na_create,SLOT(accept()));
 
@@ -246,11 +285,12 @@ void MainWindow::on_NewAnimation_clicked()
         previewPixmap->addImgFrame(namebox->text(),labelbox->value(),
                                    img_select->currentText());
         animModel->appendRow(
-                    QList<QStandardItem*>({new QStandardItem((namebox->text())),
-                                           new QStandardItem(QString::number(labelbox->value())),
-                                           new QStandardItem(img_select->currentText())}));
+            QList<QStandardItem*>({new QStandardItem((namebox->text())),
+                new QStandardItem(QString::number(labelbox->value())),
+                new QStandardItem(img_select->currentText())}));
     }
 
+//CLEANUP
     delete name_title;
     delete namebox;
     delete label_title;
@@ -258,7 +298,6 @@ void MainWindow::on_NewAnimation_clicked()
     delete img_title;
     delete img_select;
     delete accept_button;
-
 }
 
 QList<QString> MainWindow::imgNames()

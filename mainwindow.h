@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "STRINGS.h"
 #include <QMainWindow>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -45,17 +46,19 @@ class MainWindow : public QMainWindow
     QStandardItemModel * changeframemodel;
     QStandardItemModel * animModel;
     Spriteflow         * previewPixmap;
-    QTimer             * frametime;
+    QTimer             * frametimer;
 
+    int frametime;
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    bool freshenUp();
     void populate_pointers();
 
     void setupScene();
+    void setupHeaders();
 
     void openImage(QString);
-
     QPixmap getImage(QString);
 
 private slots:
@@ -89,7 +92,7 @@ private slots:
 
     void on_NewAnimation_clicked();
 
-    QList<QString> imgNames();
+    QList<QString> imgNames();//Sends images to select list
 
 private:
     Ui::MainWindow *ui;

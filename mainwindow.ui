@@ -68,6 +68,9 @@
             <normaloff>:/new/prefix1/play--v1.png</normaloff>
             <normalon>:/new/prefix1/stop.png</normalon>:/new/prefix1/play--v1.png</iconset>
           </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
