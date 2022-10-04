@@ -39,6 +39,7 @@ class Spriteflow : public QGraphicsPixmapItem{
     QList<imgPage> * images;         //List of images in the sprite
 
     float ID;             //The current frame index
+    float max;            //The maximum value before looping
     float rate;           //The amount the index changes per update
     int *x=nullptr;       //The x position. Can be polled from parent
     int *y=nullptr;       //The y position. Can be polled from parent
@@ -73,6 +74,9 @@ public:
     QList<ImgFrame>* getImageFrame();//    Returns the imageframe list
 
     float getID();//Getter for current ID
+
+    float getMax();
+    void setMax(float newMax);
 
 public slots:
     void updateparams();// Updates parameters from parent

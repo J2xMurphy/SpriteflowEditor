@@ -14,6 +14,16 @@ float Spriteflow::getID()
     return ID;
 }
 
+float Spriteflow::getMax()
+{
+    return max;
+}
+
+void Spriteflow::setMax(float newMax)
+{
+    max = newMax;
+}
+
 Spriteflow::Spriteflow()
 {
     //If no parent is passed in, creates usable variables
@@ -25,6 +35,7 @@ Spriteflow::Spriteflow()
     }
     ID = 0;
     rate = 1;
+    max = 100;
     images = new QList<imgPage>;
 }
 
@@ -33,18 +44,20 @@ Spriteflow::Spriteflow(int * p1, int * p2)
     //only positional variables are passed in, so linked is true
     inheritPos(p1,p2);
     linked = true;
+    max=100;
     images = new QList<imgPage>;
 }
 
 void Spriteflow::update()
 {
     //Only run when playing is true
-    if (playing == false){
+    if (playing == false)
+    {
         return;
     }
     //Change this to be affected by rate
     ID++;
-
+    qDebug() <<"Updating to " << ID;
     //Checks if ID should be jumped
     int tmp = isChangeFrame();
     if (tmp > -1)
@@ -55,6 +68,11 @@ void Spriteflow::update()
     if (tmp > -1)
         ani(tmp);
 
+    //Resets to 0 if cap is hit
+    if (ID >= max)
+    {
+        ID = 0;
+    }
     //Make it to update parent xy
 }
 
@@ -107,6 +125,10 @@ void Spriteflow::play(int IID)
 {
     //Resumes playback, and sets the frame ID to argument and associated images
     //Possibly unnecessary, as update basically does what setImgFrame(IID) does
+    if (ID==-1)
+    {
+        return;
+    }
     qDebug() << "Playing index";
     playing = true;
     ID = IID;
@@ -150,7 +172,9 @@ bool Spriteflow::sendToScene()
 {
     //Checks if global scene has been added, then adds itself to it
     if (EZScene == nullptr)
+    {
         return 0;
+    }
     EZScene->addItem(this);
     return 1;
 }
@@ -169,9 +193,12 @@ int Spriteflow::isChangeFrame()
     qDebug() << "Checking changeframe:" << ID << changeframes.size();
     for (ChangeFrame c:changeframes){
         if (ID==c.goTo)
+        {
             qDebug() << "Changeframe hit:" << c.goTo << c.label;
             return c.label;
+        }
     }
+    qDebug() << "Changeframe miss";
     return -1;
 }
 
@@ -197,7 +224,8 @@ void Spriteflow::setImgFrame(int IDD)
     qDebug() << "Setting Image";
     for (ImgFrame fimg:imgframes)
     {
-        if (fimg.ID == IDD){
+        if (fimg.ID == IDD)
+        {
             QPixmap * ptr = fimg.img;
             this->setPixmap(*ptr);
         }
@@ -209,7 +237,9 @@ void Spriteflow::ani(int index)
     //sets image to array index, fails if too large
     qDebug() << "Setting anim" << index;
     if (index > imgframes.size())
+    {
         return;
+    }
     this->setPixmap(*imgframes.at(index).img);
 }
 
@@ -220,10 +250,12 @@ QPixmap *Spriteflow::findImg(QString target)
     for (int i = 0; i<images->size();++i)
     {
         qDebug() << "Comparing " << target << " and " << images->at(i).name << i;
-        if (target == images->at(i).name){
+        if (target == images->at(i).name)
+        {
             qDebug() << "Found" << target << images->at(i).name << i << " " << images->size()-1;
             QPixmap * tmp = images->at(i).img;
-            return tmp;}
+            return tmp;
+        }
     }
     qDebug() << "Image Unfound" ;
     //Upon failing, returns a new pixmap of dummy data

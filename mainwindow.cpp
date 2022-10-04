@@ -35,6 +35,8 @@ bool MainWindow::freshenUp()
     frametimer->setInterval(frametime);
     connect(frametimer,SIGNAL(timeout()),this,SLOT(update_Pixmap()));
     return true;
+
+    ID_Slider->setMaximum(previewPixmap->getMax());
 }
 
 void MainWindow::setupScene()
@@ -76,9 +78,15 @@ void MainWindow::on_last_frame_clicked()
 void MainWindow::on_start_clicked()
 {
     if(!frametimer->isActive())
+    {
         frametimer->start();
+        previewPixmap->play();
+    }
     else
+    {
         frametimer->stop();
+        previewPixmap->stop();
+    }
 }
 
 
@@ -98,6 +106,12 @@ void MainWindow::on_actionNew_triggered()
     delete previewPixmap;
     delete EZScene;
     setupScene();
+    imgList->clear();
+    imgmodel->clear();
+    changeframemodel->clear();
+    animModel->clear();
+    frametime = 200;
+    frametimer->setInterval(frametime);
 }
 
 
@@ -135,7 +149,7 @@ void MainWindow::on_actionSettings_triggered()
     //Section to edit frametime
     QWidget ft(this);
     QHBoxLayout ft_layout(&ft);
-    auto f_timer1 = new QLabel("Frametime:");
+    auto f_timer1 = new QLabel(FRAMETIME_TITLE":");
     ft_layout.addWidget(f_timer1);
     auto * timerbox = new QSpinBox();
     ft_layout.addWidget(timerbox);
@@ -144,6 +158,24 @@ void MainWindow::on_actionSettings_triggered()
     s_layout.addWidget(&ft);
     timerbox->setMaximum(9999);
     timerbox->setValue(frametime);
+    timerbox->setAlignment(Qt::AlignRight);
+    f_timer2->setAlignment(Qt::AlignRight);
+    f_timer2->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
+
+    //Section to edit timeline cap
+    QWidget mx(this);
+    QHBoxLayout mx_layout(&mx);
+    auto maxLabel = new QLabel(MAXCAP_TITLE":");
+    mx_layout.addWidget(maxLabel);
+    auto * mxbox = new QSpinBox();
+    mx_layout.addWidget(mxbox);
+    s_layout.addWidget(&mx);
+    mxbox->setAlignment(Qt::AlignRight);
+
+    timerbox->setMaximum(9999);
+    timerbox->setValue(frametime);
+    mxbox->setMaximum(9999);
+    mxbox->setValue(previewPixmap->getMax());
 
     auto accept_button = new QPushButton(ACCEPT_BUTTON);
     s_layout.addWidget(accept_button);
@@ -153,6 +185,8 @@ void MainWindow::on_actionSettings_triggered()
     {
         frametime = timerbox->value();
         frametimer->setInterval(frametime);
+        previewPixmap->setMax(mxbox->value());
+        ID_Slider->setMaximum(previewPixmap->getMax());
     }
 
     delete f_timer1;
@@ -206,8 +240,10 @@ QPixmap MainWindow::getImage(QString target)
 void MainWindow::update_Pixmap()
 {
     previewPixmap->update();
-    ID_Counter->setText(QString::number(previewPixmap->getID()));
+    ID_Counter->setText(QString::number(previewPixmap->getID())+"/"+
+                        QString::number(previewPixmap->getMax()));
     qDebug() << QString::number(previewPixmap->getID());
+    ID_Slider->setSliderPosition(previewPixmap->getID());
 }
 
 void MainWindow::on_NewChangeframe_clicked()

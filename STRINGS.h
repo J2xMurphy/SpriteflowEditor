@@ -9,6 +9,8 @@
 #define CHANGEFRAME_TITLE "New Changeframe..."
 #define ANIMATION_TITLE "New Animation..."
 #define SETTINGS_TITLE "Settings"
+#define FRAMETIME_TITLE "Frametime"
+#define MAXCAP_TITLE "Maximum index"
 
 #define ACCEPT_BUTTON "Accept"
 
