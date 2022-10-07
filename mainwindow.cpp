@@ -7,11 +7,13 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    qDebug() << "Beginning program";
     ui->setupUi(this);
     populate_pointers();
     setupScene();
     freshenUp();
     setupHeaders();
+    qDebug() << "Ending Initialization";
 }
 
 MainWindow::~MainWindow()
@@ -21,6 +23,7 @@ MainWindow::~MainWindow()
 
 bool MainWindow::freshenUp()
 {
+    qDebug() << "Initializing";
     frametime = 200;
     imgList = new QList<imgdata>;
     imgmodel = new QStandardItemModel();
@@ -41,6 +44,7 @@ bool MainWindow::freshenUp()
 
 void MainWindow::setupScene()
 {
+    qDebug() << "Setting up Scene";
     EZScene = new QGraphicsScene;
     Pre_View->setScene(EZScene);
     previewPixmap = new Spriteflow();
@@ -50,6 +54,10 @@ void MainWindow::setupScene()
 
 void MainWindow::setupHeaders()
 {
+    qDebug() << "Setting up Headers";
+    imgmodel->setHorizontalHeaderItem(0,new QStandardItem(IMAGE_HEADER));
+    Image_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
     changeframemodel->setHorizontalHeaderItem(0,new QStandardItem(GOTO_HEADER));
     changeframemodel->setHorizontalHeaderItem(1,new QStandardItem(LABEL_HEADER));
     Changeframe_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -67,16 +75,22 @@ Image_Table = findChild<QTableView*>("Image_List");
 Anim_Table = findChild<QTableView*>("Anim_List");
 ID_Slider = findChild<QSlider*>("ID_slider");
 ID_Counter = findChild<QLabel*>("ID_label");
+Prev_Button = findChild<QPushButton*>("last_frame");
+Play_Button = findChild<QPushButton*>("start");
+Next_Button = findChild<QPushButton*>("nextframe");
 }
 
 void MainWindow::on_last_frame_clicked()
 {
-
+    qDebug() << "Decrement Triggered";
+    previewPixmap->decrement();
+    stopPlayback();
 }
 
 
 void MainWindow::on_start_clicked()
 {
+    qDebug() << "Start/Stop Triggered";
     if(!frametimer->isActive())
     {
         frametimer->start();
@@ -92,17 +106,14 @@ void MainWindow::on_start_clicked()
 
 void MainWindow::on_nextframe_clicked()
 {
-
-}
-
-
-void MainWindow::on_ID_slider_sliderMoved(int position)
-{
-
+    qDebug() << "Incrementing Frame";
+    previewPixmap->increment();
+    stopPlayback();
 }
 
 void MainWindow::on_actionNew_triggered()
 {
+    qDebug() << "New Triggered";
     delete previewPixmap;
     delete EZScene;
     setupScene();
@@ -141,6 +152,7 @@ void MainWindow::on_actionExport_triggered()
 
 void MainWindow::on_actionSettings_triggered()
 {
+    qDebug() << "Settings Opened";
     previewPixmap->stop();
     QDialog settings(this);
     QVBoxLayout s_layout(&settings);
@@ -207,6 +219,7 @@ void MainWindow::on_actionImport_Image_triggered()
 
 void MainWindow::openImage(QString dir)
 {
+    qDebug() << "Opening Image";
     QPixmap qxp((QString(dir)));
     QString imgname = dir.sliced(dir.lastIndexOf("/")+1);
     imgmodel->appendRow(new QStandardItem(imgname));
@@ -223,6 +236,7 @@ void MainWindow::openImage(QString dir)
 
 void MainWindow::on_Image_List_doubleClicked(const QModelIndex &index)
 {
+    qDebug() << "Image Selected";
     QString target = index.data().toString();
     previewPixmap->play(getImage(target));
 }
@@ -231,7 +245,9 @@ QPixmap MainWindow::getImage(QString target)
 {
     for(const imgdata id : *imgList){
         if (target == id.name)
+        {
             return id.img;
+        }
     }
     QPixmap fail;
     return fail;
@@ -239,15 +255,18 @@ QPixmap MainWindow::getImage(QString target)
 
 void MainWindow::update_Pixmap()
 {
+    qDebug() << "***************MainWindow::update_Pixmap**************";
     previewPixmap->update();
     ID_Counter->setText(QString::number(previewPixmap->getID())+"/"+
                         QString::number(previewPixmap->getMax()));
     qDebug() << QString::number(previewPixmap->getID());
     ID_Slider->setSliderPosition(previewPixmap->getID());
+    qDebug() << "************************END**************************";
 }
 
 void MainWindow::on_NewChangeframe_clicked()
 {
+    qDebug() << "New Changeframe";
     QDialog cf_create(this);
     QHBoxLayout cf_layout(&cf_create);
     cf_create.setWindowTitle(CHANGEFRAME_TITLE);
@@ -287,6 +306,7 @@ void MainWindow::on_NewChangeframe_clicked()
 
 void MainWindow::on_NewAnimation_clicked()
 {
+    qDebug() << "New Animation";
     QDialog na_create(this);
     QHBoxLayout na_layout(&na_create);
     na_create.setWindowTitle(ANIMATION_TITLE);
@@ -314,10 +334,8 @@ void MainWindow::on_NewAnimation_clicked()
     na_layout.addWidget(accept_button);
     QObject::connect(accept_button,SIGNAL(clicked()),&na_create,SLOT(accept()));
 
-    qDebug() << "Reached...";
     if (na_create.exec())
     {
-        qDebug() << "Going...";
         previewPixmap->addImgFrame(namebox->text(),labelbox->value(),
                                    img_select->currentText());
         animModel->appendRow(
@@ -343,3 +361,52 @@ QList<QString> MainWindow::imgNames()
         tmp.append(dt.name);
     return tmp;
 }
+
+void MainWindow::on_ID_slider_valueChanged(int value)
+{
+    qDebug() << "Slider changed to:"<<value;
+    if (!previewPixmap->getPlaying())
+    {
+        previewPixmap->setID(value);
+        stopPlayback();
+    }
+    ID_Counter->setText(QString::number(previewPixmap->getID())+"/"+
+                        QString::number(previewPixmap->getMax()));
+}
+
+void MainWindow::on_ID_slider_sliderPressed()
+{
+    qDebug() << "Slider Pressed";
+    previewPixmap->setID(ID_Slider->value());
+    stopPlayback();
+}
+
+
+void MainWindow::on_ID_slider_actionTriggered(int action)
+{
+    qDebug() <<"Slider Action:" << action << ID_Slider->value();
+    if (action == 3 || action == 4)
+    {
+        previewPixmap->setID(ID_Slider->value());
+        stopPlayback();
+    }
+}
+
+void MainWindow::stopPlayback()
+{
+    qDebug() << "Stopping Playback";
+    frametimer->stop();
+    ID_Counter->setText(QString::number(previewPixmap->getID())+"/"+
+                        QString::number(previewPixmap->getMax()));
+    previewPixmap->stop();
+    Play_Button->setChecked(false);
+}
+
+
+void MainWindow::on_ID_slider_sliderMoved(int position)
+{
+    qDebug() << "Slider Moved";
+    previewPixmap->setID(position);
+    stopPlayback();
+}
+

@@ -24,6 +24,30 @@ void Spriteflow::setMax(float newMax)
     max = newMax;
 }
 
+void Spriteflow::setID(float newID)
+{
+    qDebug() << "--Spriteflow::Setting ID to:" << newID;
+    ID = newID;
+    if (ID<0)
+    {
+        ID=this->max;
+    }
+    if (ID>max)
+    {
+        ID=0;
+    }
+
+    int tmp = isChangeFrame();
+    tmp = isAnim();
+    if (tmp > -1)
+        ani(tmp);
+}
+
+bool Spriteflow::getPlaying() const
+{
+    return playing;
+}
+
 Spriteflow::Spriteflow()
 {
     //If no parent is passed in, creates usable variables
@@ -50,6 +74,7 @@ Spriteflow::Spriteflow(int * p1, int * p2)
 
 void Spriteflow::update()
 {
+    qDebug() << "*****Beginning update*****";
     //Only run when playing is true
     if (playing == false)
     {
@@ -74,6 +99,7 @@ void Spriteflow::update()
         ID = 0;
     }
     //Make it to update parent xy
+    qDebug() << "*****Ending update*****";
 }
 
 void Spriteflow::addChangeframe(int cgoto, int clabel)
@@ -270,6 +296,26 @@ QList<ChangeFrame>* Spriteflow::getChangeFrame()
 QList<ImgFrame>* Spriteflow::getImageFrame()
 {
     return &imgframes;
+}
+
+void Spriteflow::decrement(int i)
+{
+    stop();
+    ID-=i;
+    if (ID<0)
+    {
+        ID=this->max;
+    }
+}
+
+void Spriteflow::increment(int i)
+{
+    stop();
+    ID+=i;
+    if (ID>max)
+    {
+        ID=0;
+    }
 }
 
 void Spriteflow::updateparams()

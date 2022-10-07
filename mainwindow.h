@@ -40,6 +40,9 @@ class MainWindow : public QMainWindow
     QTableView    * Anim_Table;
     QSlider       * ID_Slider;
     QLabel        * ID_Counter;
+    QPushButton   * Prev_Button;
+    QPushButton   * Play_Button;
+    QPushButton   * Next_Button;
 
     QList<imgdata>     * imgList;
     QStandardItemModel * imgmodel;
@@ -70,8 +73,6 @@ private slots:
 
     void on_nextframe_clicked();
 
-    void on_ID_slider_sliderMoved(int position);
-
     void on_actionNew_triggered();
 
     void on_actionOpen_triggered();
@@ -93,6 +94,16 @@ private slots:
     void on_NewAnimation_clicked();
 
     QList<QString> imgNames();//Sends images to select list
+
+    void on_ID_slider_valueChanged(int value);
+
+    void on_ID_slider_sliderPressed();
+
+    void on_ID_slider_actionTriggered(int action);
+
+    void stopPlayback();
+
+    void on_ID_slider_sliderMoved(int position);
 
 private:
     Ui::MainWindow *ui;

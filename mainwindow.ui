@@ -32,7 +32,7 @@
         <item>
          <widget class="QLabel" name="ID_label">
           <property name="text">
-           <string>Frame _ID</string>
+           <string>0/100</string>
           </property>
          </widget>
         </item>

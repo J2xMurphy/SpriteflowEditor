@@ -72,11 +72,17 @@ public:
     QPixmap* findImg(QString);     //Returns the image associated with a name
     QList<ChangeFrame>* getChangeFrame();//Returns the changeframe list
     QList<ImgFrame>* getImageFrame();//    Returns the imageframe list
+    void decrement(int = 1);        //Decreases the ID by arg amount, or 1 by default
+    void increment(int = 1);        //Increases the ID by arg amoubt, or 1 by default
 
     float getID();//Getter for current ID
 
     float getMax();
     void setMax(float newMax);
+
+    void setID(float newID);
+
+    bool getPlaying() const;
 
 public slots:
     void updateparams();// Updates parameters from parent
