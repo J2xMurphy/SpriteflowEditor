@@ -339,7 +339,8 @@ void MainWindow::on_NewAnimation_clicked()
         previewPixmap->addImgFrame(namebox->text(),labelbox->value(),
                                    img_select->currentText());
         animModel->appendRow(
-            QList<QStandardItem*>({new QStandardItem((namebox->text())),
+            QList<QStandardItem*>({
+                new QStandardItem((namebox->text())),
                 new QStandardItem(QString::number(labelbox->value())),
                 new QStandardItem(img_select->currentText())}));
     }
@@ -408,5 +409,57 @@ void MainWindow::on_ID_slider_sliderMoved(int position)
     qDebug() << "Slider Moved";
     previewPixmap->setID(position);
     stopPlayback();
+}
+
+
+void MainWindow::on_Anim_List_doubleClicked(const QModelIndex &index)
+{
+    qDebug() << "Edit Animation";
+    QDialog na_create(this);
+    QHBoxLayout na_layout(&na_create);
+    na_create.setWindowTitle(EDIT_ANIMATION_TITLE);
+
+    auto name_title = new QLabel(NAME_HEADER":");
+    na_layout.addWidget(name_title);
+    auto * namebox = new QLineEdit();
+    na_layout.addWidget(namebox);
+
+    auto space1 = new QSpacerItem(2,2);
+    na_layout.addItem(space1);
+
+    auto label_title = new QLabel(LABEL_HEADER":");
+    na_layout.addWidget(label_title);
+    auto labelbox = new QSpinBox();
+    na_layout.addWidget(labelbox);
+
+    auto img_title = new QLabel(IMAGE_HEADER":");
+    na_layout.addWidget(img_title);
+    auto img_select = new QComboBox();
+    img_select->addItems(imgNames());
+    na_layout.addWidget(img_select);
+
+    auto accept_button = new QPushButton(ACCEPT_BUTTON);
+    na_layout.addWidget(accept_button);
+    QObject::connect(accept_button,SIGNAL(clicked()),&na_create,SLOT(accept()));
+    namebox->setText(animModel->item(index.row(),0)->text());
+    labelbox->setValue(animModel->item(index.row(),1)->text().toInt());
+    img_select->setCurrentText(animModel->item(index.row(),2)->text());
+    if (na_create.exec())
+    {
+        animModel->item(index.row(),0)->setText(namebox->text());
+        animModel->item(index.row(),1)->setText(QString::number(labelbox->value()));
+        animModel->item(index.row(),2)->setText(img_select->currentText());
+        previewPixmap->editImgFrame(index.row(),namebox->text(),
+                                    labelbox->value(),img_select->currentText());
+    }
+
+//CLEANUP
+    delete name_title;
+    delete namebox;
+    delete label_title;
+    delete labelbox;
+    delete img_title;
+    delete img_select;
+    delete accept_button;
 }
 

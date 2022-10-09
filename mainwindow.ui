@@ -109,7 +109,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QTableView" name="Anim_List"/>
+         <widget class="QTableView" name="Anim_List">
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="Anim_Params">

@@ -125,6 +125,13 @@ void Spriteflow::addImgFrame(QString name, int imgID, QString img)
     qDebug() << "Added Animation";
 }
 
+void Spriteflow::editImgFrame(int index,QString name, int imgID, QString img)
+{
+    //Replaces all the parameters of the image frame with given arguments
+    imgframes.replace(index,{name,imgID,findImg(img)});
+    qDebug() << "Edited Animation";
+}
+
 void Spriteflow::addImgFrame(QString name,int imgID, int ref)
 {
     //Adds to imageframe based on images array index

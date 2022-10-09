@@ -54,7 +54,8 @@ public:
     void update();                 //Call per frame to update image
     void addChangeframe(int,int);  //When A frame is reached go to B frame
     void addImgFrame(QString,int,QPixmap); //When A frame is reached, set img to arg
-    void addImgFrame(QString,int,QString); //When A frame is reached, set img by name id
+    void addImgFrame(QString,int,QString); //When A frame is reached, set img by name
+    void editImgFrame(int,QString,int,QString);//Changes an Imgframe at index a0
     void addImgFrame(QString,int,int);     //When A frame is reached, set list img index
     void addImage(QString,QPixmap);        //Adds img into saved list
     void play(QPixmap);            //Sets the current image to arg
@@ -76,13 +77,11 @@ public:
     void increment(int = 1);        //Increases the ID by arg amoubt, or 1 by default
 
     float getID();//Getter for current ID
+    float getMax();//Getter for the maximum sprite ID
+    bool getPlaying() const;//Getter for if the sprite is playing
+    void setID(float newID);//Setter for the current ID
+    void setMax(float newMax);//Setter for the maximum sprite ID
 
-    float getMax();
-    void setMax(float newMax);
-
-    void setID(float newID);
-
-    bool getPlaying() const;
 
 public slots:
     void updateparams();// Updates parameters from parent

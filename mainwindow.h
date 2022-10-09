@@ -105,6 +105,8 @@ private slots:
 
     void on_ID_slider_sliderMoved(int position);
 
+    void on_Anim_List_doubleClicked(const QModelIndex &index);
+
 private:
     Ui::MainWindow *ui;
 };
