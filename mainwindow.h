@@ -107,6 +107,8 @@ private slots:
 
     void on_Anim_List_doubleClicked(const QModelIndex &index);
 
+    void on_Change_List_doubleClicked(const QModelIndex &index);
+
 private:
     Ui::MainWindow *ui;
 };

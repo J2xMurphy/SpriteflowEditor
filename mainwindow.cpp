@@ -291,7 +291,7 @@ void MainWindow::on_NewChangeframe_clicked()
 
     if (cf_create.exec())
     {
-    previewPixmap->addChangeframe(gotobox->value(),labelbox->value());
+    previewPixmap->addChangeFrame(gotobox->value(),labelbox->value());
     changeframemodel->appendRow(
         QList<QStandardItem*>({new QStandardItem((QString::number(gotobox->value()))),
             new QStandardItem(QString::number(labelbox->value()))}));
@@ -460,6 +460,50 @@ void MainWindow::on_Anim_List_doubleClicked(const QModelIndex &index)
     delete labelbox;
     delete img_title;
     delete img_select;
+    delete accept_button;
+}
+
+
+void MainWindow::on_Change_List_doubleClicked(const QModelIndex &index)
+{
+
+    qDebug() << "Editing Changeframe";
+    QDialog cf_create(this);
+    QHBoxLayout cf_layout(&cf_create);
+    cf_create.setWindowTitle(EDIT_CHANGEFRAME_TITLE);
+
+    auto goto_title = new QLabel(GOTO_HEADER":");
+    cf_layout.addWidget(goto_title);
+    QSpinBox * gotobox = new QSpinBox();
+    cf_layout.addWidget(gotobox);
+
+    //Deleting unnecessary, gives segfault
+    auto space1 = new QSpacerItem(2,2);
+    cf_layout.addItem(space1);
+
+    auto label_title = new QLabel(LABEL_HEADER":");
+    cf_layout.addWidget(label_title);
+    QSpinBox * labelbox = new QSpinBox();
+    cf_layout.addWidget(labelbox);
+
+    auto accept_button = new QPushButton(ACCEPT_BUTTON);
+    cf_layout.addWidget(accept_button);
+    QObject::connect(accept_button,SIGNAL(clicked()),&cf_create,SLOT(accept()));
+
+    gotobox->setValue(changeframemodel->item(index.row(),0)->text().toInt());
+    labelbox->setValue(changeframemodel->item(index.row(),1)->text().toInt());
+
+    if (cf_create.exec())
+    {
+        changeframemodel->item(index.row(),0)->setText(QString::number(gotobox->value()));
+        changeframemodel->item(index.row(),1)->setText(QString::number(labelbox->value()));
+        previewPixmap->editChangeFrame(index.row(),gotobox->value(),labelbox->value());
+    }
+
+    delete goto_title;
+    delete gotobox;
+    delete label_title;
+    delete labelbox;
     delete accept_button;
 }
 

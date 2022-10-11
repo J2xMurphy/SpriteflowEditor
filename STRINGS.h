@@ -8,6 +8,7 @@
 
 #define CHANGEFRAME_TITLE "New Changeframe..."
 #define ANIMATION_TITLE "New Animation..."
+#define EDIT_CHANGEFRAME_TITLE "Edit Changeframe..."
 #define EDIT_ANIMATION_TITLE "Edit Animation..."
 #define SETTINGS_TITLE "Settings"
 #define FRAMETIME_TITLE "Frametime"

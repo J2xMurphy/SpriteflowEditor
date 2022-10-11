@@ -102,11 +102,18 @@ void Spriteflow::update()
     qDebug() << "*****Ending update*****";
 }
 
-void Spriteflow::addChangeframe(int cgoto, int clabel)
+void Spriteflow::addChangeFrame(int cgoto, int clabel)
 {
     //Just adds the args to the changeframe list
     changeframes.append({cgoto,clabel});
     qDebug() << "Added Changeframe";
+}
+
+void Spriteflow::editChangeFrame(int index, int cgoto, int clabel)
+{
+    //Reaplces all parameters of the changeframe at index with given arguments
+    changeframes.replace(index,{cgoto,clabel});
+    qDebug() << "Edited Changeframe";
 }
 
 void Spriteflow::addImgFrame(QString name,int imgID, QPixmap img)
