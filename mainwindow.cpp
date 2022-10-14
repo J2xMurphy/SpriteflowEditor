@@ -507,3 +507,45 @@ void MainWindow::on_Change_List_doubleClicked(const QModelIndex &index)
     delete accept_button;
 }
 
+
+void MainWindow::on_delete_Button_clicked()
+{
+    qDebug() << "delete clicked";
+    if (Changeframe_Table->hasFocus())
+    {
+        qDebug() << "Changeframe table is focused" << Changeframe_Table->selectionModel()->currentIndex().row();
+        removeChangeframeEntry(Changeframe_Table->selectionModel()->currentIndex().row());
+    }
+    else if (Image_Table->hasFocus())
+    {
+        qDebug() << "Image table is focused" << Image_Table->selectionModel()->currentIndex().row();
+        removeImageEntry(Image_Table->selectionModel()->currentIndex().row());
+    }
+    else if (Anim_Table->hasFocus())
+    {
+        qDebug() << "Anim table is focused" << Anim_Table->selectionModel()->currentIndex().row();;
+        removeAnimEntry(Anim_Table->selectionModel()->currentIndex().row());
+    }
+    else
+    {
+        qDebug() << "No relevant focus";
+    }
+}
+
+void MainWindow::removeChangeframeEntry(int row)
+{
+    changeframemodel->takeRow(row);
+    previewPixmap->removeChangeFrame(row);
+}
+
+void MainWindow::removeAnimEntry(int row)
+{
+    animModel->takeRow(row);
+    previewPixmap->removeImgFrame(row);
+}
+
+void MainWindow::removeImageEntry(int row)
+{
+   imgmodel->takeRow(row);
+   previewPixmap->removeImage(row);
+}

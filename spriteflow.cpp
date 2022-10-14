@@ -116,6 +116,11 @@ void Spriteflow::editChangeFrame(int index, int cgoto, int clabel)
     qDebug() << "Edited Changeframe";
 }
 
+void Spriteflow::removeChangeFrame(int)
+{
+
+}
+
 void Spriteflow::addImgFrame(QString name,int imgID, QPixmap img)
 {
     //Adds the img to the imglist, then adds the image to imagefram
@@ -139,6 +144,11 @@ void Spriteflow::editImgFrame(int index,QString name, int imgID, QString img)
     qDebug() << "Edited Animation";
 }
 
+void Spriteflow::removeImgFrame(int)
+{
+
+}
+
 void Spriteflow::addImgFrame(QString name,int imgID, int ref)
 {
     //Adds to imageframe based on images array index
@@ -151,6 +161,11 @@ void Spriteflow::addImage(QString name,QPixmap img)
     //Adds the image to images list for later use
     images->append({name,new QPixmap(img)});
     qDebug() << "Added Image";
+}
+
+void Spriteflow::removeImage(int)
+{
+
 }
 
 void Spriteflow::play(QPixmap img)

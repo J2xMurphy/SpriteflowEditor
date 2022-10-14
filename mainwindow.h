@@ -109,6 +109,14 @@ private slots:
 
     void on_Change_List_doubleClicked(const QModelIndex &index);
 
+    void on_delete_Button_clicked();
+
+    void removeChangeframeEntry(int);
+
+    void removeAnimEntry(int);
+
+    void removeImageEntry(int);
+
 private:
     Ui::MainWindow *ui;
 };

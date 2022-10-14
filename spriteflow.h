@@ -54,11 +54,14 @@ public:
     void update();                 //Call per frame to update image
     void addChangeFrame(int,int);  //When A frame is reached go to B frame
     void editChangeFrame(int,int,int); //Changes a ChangeFrame at index a0
+    void removeChangeFrame(int);   //Removes ChangeFrame at index a0
     void addImgFrame(QString,int,QPixmap); //When A frame is reached, set img to arg
     void addImgFrame(QString,int,QString); //When A frame is reached, set img by name
-    void editImgFrame(int,QString,int,QString);//Changes an Imgframe at index a0
     void addImgFrame(QString,int,int);     //When A frame is reached, set list img index
-    void addImage(QString,QPixmap);        //Adds img into saved list
+    void editImgFrame(int,QString,int,QString);//Changes an Imgframe at index a0
+    void removeImgFrame(int);      //Removes ImgFrame at index a0
+    void addImage(QString,QPixmap);//Adds img into saved list
+    void removeImage(int);         //Deletes Image at a0;
     void play(QPixmap);            //Sets the current image to arg
     void play(int);                //Sets the current image to arg by index
     void play(QString);            //Sets the current image to name id
