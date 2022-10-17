@@ -23,7 +23,7 @@ struct ImgFrame
 {
     QString name;
     int ID;
-    QPixmap * img;
+    QPixmap ** img;
 };
 
 //Associates a name to an image. These actually should hold allocated data.
@@ -36,7 +36,7 @@ struct imgPage
 class Spriteflow : public QGraphicsPixmapItem{
     QList<ChangeFrame> changeframes; //List of frames to jump to from a set frame ID
     QList<ImgFrame> imgframes;       //List of identifiers and image to show on ID
-    QList<imgPage> * images;         //List of images in the sprite
+    QList<imgPage*> * images;         //List of images in the sprite
 
     float ID;             //The current frame index
     float max;            //The maximum value before looping
@@ -47,6 +47,8 @@ class Spriteflow : public QGraphicsPixmapItem{
     bool linked = false;  //Refers to whether there is a parent attatched
     qreal scale;          //Makes the image larger or smaller
     bool playing = true;  //Determines whether update does anything or not
+    QPixmap *nullimage;
+    imgPage* blankPage;
 
 public:
     Spriteflow();
@@ -74,7 +76,7 @@ public:
     int isAnim();                  //Returns the imageframe list index if ID matches
     void setImgFrame(int);   //Sets the image to the stored imgframe based on IDD arg
     void ani(int);           //Sets the image to the stored imgframe based in index arg
-    QPixmap* findImg(QString);     //Returns the image associated with a name
+    QPixmap** findImg(QString);     //Returns the image associated with a name
     QList<ChangeFrame>* getChangeFrame();//Returns the changeframe list
     QList<ImgFrame>* getImageFrame();//    Returns the imageframe list
     void decrement(int = 1);        //Decreases the ID by arg amount, or 1 by default

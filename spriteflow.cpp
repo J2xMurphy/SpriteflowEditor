@@ -37,8 +37,8 @@ void Spriteflow::setID(float newID)
         ID=0;
     }
 
-    int tmp = isChangeFrame();
-    tmp = isAnim();
+//    int tmp = isChangeFrame();
+    int tmp = isAnim();
     if (tmp > -1)
         ani(tmp);
 }
@@ -60,7 +60,9 @@ Spriteflow::Spriteflow()
     ID = 0;
     rate = 1;
     max = 100;
-    images = new QList<imgPage>;
+    images = new QList<imgPage*>;
+    nullimage = new QPixmap(":/new/prefix1/Missing.png");
+    blankPage = new imgPage{"",nullimage};
 }
 
 Spriteflow::Spriteflow(int * p1, int * p2)
@@ -69,7 +71,9 @@ Spriteflow::Spriteflow(int * p1, int * p2)
     inheritPos(p1,p2);
     linked = true;
     max=100;
-    images = new QList<imgPage>;
+    images = new QList<imgPage*>;
+    nullimage = new QPixmap(":/new/prefix1/Missing.png");
+    blankPage = new imgPage{"",nullimage};
 }
 
 void Spriteflow::update()
@@ -124,22 +128,25 @@ void Spriteflow::removeChangeFrame(int)
 void Spriteflow::addImgFrame(QString name,int imgID, QPixmap img)
 {
     //Adds the img to the imglist, then adds the image to imagefram
-    images->append({name,new QPixmap(img)});
+    images->append(new imgPage{name,new QPixmap(img)});
     assert(images->size()>0);
-    imgframes.append({name,imgID,(images[images->size()-1].data()->img)});
-    qDebug() << "Added Animation";
+//    imgframes.append({name,imgID,(images[images->size()-1].data()->img)});
+    imgframes.append({name,imgID,&(images->at(images->size()-1)->img)});
+    qDebug() << "Added new Animation to book";
 }
 
 void Spriteflow::addImgFrame(QString name, int imgID, QString img)
 {
     //Finds the image in the images list, then adds to imagframe
+//    QPixmap * tmp = findImg(img);
     imgframes.append({name,imgID,findImg(img)});
-    qDebug() << "Added Animation";
+    qDebug() << "Added Animation from book";
 }
 
 void Spriteflow::editImgFrame(int index,QString name, int imgID, QString img)
 {
     //Replaces all the parameters of the image frame with given arguments
+//    QPixmap * tmp = findImg(img);
     imgframes.replace(index,{name,imgID,findImg(img)});
     qDebug() << "Edited Animation";
 }
@@ -152,20 +159,30 @@ void Spriteflow::removeImgFrame(int)
 void Spriteflow::addImgFrame(QString name,int imgID, int ref)
 {
     //Adds to imageframe based on images array index
-    imgframes.append({name,imgID,images[ref].data()->img});
+//    imgframes.append({name,imgID,images[ref].data()->img});
+    imgframes.append({name,imgID,&images->at(ref)->img});
     qDebug() << "Added Animation";
 }
 
 void Spriteflow::addImage(QString name,QPixmap img)
 {
     //Adds the image to images list for later use
-    images->append({name,new QPixmap(img)});
+    images->append(new imgPage{name,new QPixmap(img)});
     qDebug() << "Added Image";
 }
 
-void Spriteflow::removeImage(int)
+void Spriteflow::removeImage(int index)
 {
-
+    //Deletes the image and page entry
+    qDebug() << "Deleting image" << index;
+//    delete images->at(index);
+    images->at(index)->img = nullimage;
+    images->removeAt(index);
+//    imgPage * tmp;
+//    tmp = (imgPage*)(&images->at(index));
+//    delete images->at(index);
+//    tmp->img = nullimage;
+//    images->removeAt(index);
 }
 
 void Spriteflow::play(QPixmap img)
@@ -195,7 +212,7 @@ void Spriteflow::play(QString name)
     //Resumes playback, and sets the current image to the saved QPixmap by name
     qDebug() << "Playing name";
     playing = true;
-    this->setPixmap(*findImg(name));
+    this->setPixmap(**findImg(name));
 }
 
 void Spriteflow::play()
@@ -262,7 +279,7 @@ int Spriteflow::isAnim()
     //Checks all imageframes to see if the frame index matches. Returns array index isf found
     qDebug() << "Checking anim: " << ID << imgframes.size();
     int tmp = -1;
-    for (ImgFrame fimg : *&imgframes){
+    for (const ImgFrame &fimg : *&imgframes){
         tmp++;
         if (ID==fimg.ID)
         {
@@ -277,44 +294,56 @@ void Spriteflow::setImgFrame(int IDD)
 {
     //Searches the imageframes for a ID hit, and sets the current pixmap to associated
     qDebug() << "Setting Image";
-    for (ImgFrame fimg:imgframes)
+    for (const ImgFrame &fimg:imgframes)
     {
         if (fimg.ID == IDD)
         {
-            QPixmap * ptr = fimg.img;
-            this->setPixmap(*ptr);
+            if (((QPixmap*)&fimg.img)==nullptr)
+            {
+                this->setPixmap(*nullimage);
+                return;
+            }
+            this->setPixmap(**fimg.img);
         }
     }
 }
 
 void Spriteflow::ani(int index)
 {
-    //sets image to array index, fails if too large
+    //Sets image to array index, fails if too large
     qDebug() << "Setting anim" << index;
     if (index > imgframes.size())
     {
         return;
     }
-    this->setPixmap(*imgframes.at(index).img);
+    //Must handle what happens in case of deleted image
+    QPixmap * tmp = *imgframes.at(index).img;
+    if (tmp->isNull())
+    {
+        qDebug() << "Image was not found, possibly deleted!";
+        this->setPixmap(*nullimage);
+        return;
+    }
+    this->setPixmap(**imgframes.at(index).img);
 }
 
-QPixmap *Spriteflow::findImg(QString target)
+QPixmap** Spriteflow::findImg(QString target)
 {
     //Compares imgpages by name vs target, then returns the stored image on hit
     qDebug() << "Finding " << target;
     for (int i = 0; i<images->size();++i)
     {
-        qDebug() << "Comparing " << target << " and " << images->at(i).name << i;
-        if (target == images->at(i).name)
+        qDebug() << "Comparing " << target << " and " << images->at(i)->name << i;
+        if (target == images->at(i)->name)
         {
-            qDebug() << "Found" << target << images->at(i).name << i << " " << images->size()-1;
-            QPixmap * tmp = images->at(i).img;
-            return tmp;
+            qDebug() << "Found" << target << images->at(i)->name << i << " " << images->size()-1;
+//            QPixmap * tmp = images->at(i)->img;
+            return &images->at(i)->img;
         }
     }
     qDebug() << "Image Unfound" ;
     //Upon failing, returns a new pixmap of dummy data
-    return (new QPixmap("Dummy"));
+    return (&nullimage);
 }
 
 QList<ChangeFrame>* Spriteflow::getChangeFrame()

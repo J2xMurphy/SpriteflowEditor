@@ -16,4 +16,5 @@
 
 #define ACCEPT_BUTTON "Accept"
 
+#define ABOUT "Icons:https://icons8.com"
 #endif // STRINGS_H

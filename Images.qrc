@@ -4,5 +4,6 @@
         <file>double-right.png</file>
         <file>play--v1.png</file>
         <file>stop.png</file>
+        <file>Missing.png</file>
     </qresource>
 </RCC>
