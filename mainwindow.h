@@ -21,6 +21,7 @@
 #include <QTimer>
 #include <QLabel>
 #include <QComboBox>
+#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -116,6 +117,8 @@ private slots:
     void removeAnimEntry(int);
 
     void removeImageEntry(int);
+
+    void on_actionAbout_triggered();
 
 private:
     Ui::MainWindow *ui;

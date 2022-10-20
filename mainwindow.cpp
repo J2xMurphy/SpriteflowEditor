@@ -211,10 +211,16 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::on_actionImport_Image_triggered()
 {
-    QString dir;
-    dir = QFileDialog::getOpenFileName(this,
-        "Open...", "", "(*.jpg *.png jpeg)");
-    openImage(dir);
+    QList<QString> dir;
+    QFileDialog op;
+    op.setFileMode(QFileDialog::ExistingFiles);
+    dir = op.getOpenFileNames(this,
+        "Open...", "", "(*.jpg *.png *.jpeg)");
+
+    for(const QString &file:dir)
+    {
+    openImage(file);
+    }
 }
 
 void MainWindow::openImage(QString dir)
@@ -548,4 +554,14 @@ void MainWindow::removeImageEntry(int row)
 {
    imgmodel->takeRow(row);
    previewPixmap->removeImage(row);
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    QMessageBox * QMB = new QMessageBox;
+    QMB->setWindowTitle(ABOUT_TITLE);
+    QMB->setText(ABOUT);
+    QMB->exec();
+
+    delete QMB;
 }

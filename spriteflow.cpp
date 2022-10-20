@@ -120,9 +120,9 @@ void Spriteflow::editChangeFrame(int index, int cgoto, int clabel)
     qDebug() << "Edited Changeframe";
 }
 
-void Spriteflow::removeChangeFrame(int)
+void Spriteflow::removeChangeFrame(int index)
 {
-
+    changeframes.remove(index);
 }
 
 void Spriteflow::addImgFrame(QString name,int imgID, QPixmap img)
@@ -130,7 +130,6 @@ void Spriteflow::addImgFrame(QString name,int imgID, QPixmap img)
     //Adds the img to the imglist, then adds the image to imagefram
     images->append(new imgPage{name,new QPixmap(img)});
     assert(images->size()>0);
-//    imgframes.append({name,imgID,(images[images->size()-1].data()->img)});
     imgframes.append({name,imgID,&(images->at(images->size()-1)->img)});
     qDebug() << "Added new Animation to book";
 }
@@ -138,7 +137,6 @@ void Spriteflow::addImgFrame(QString name,int imgID, QPixmap img)
 void Spriteflow::addImgFrame(QString name, int imgID, QString img)
 {
     //Finds the image in the images list, then adds to imagframe
-//    QPixmap * tmp = findImg(img);
     imgframes.append({name,imgID,findImg(img)});
     qDebug() << "Added Animation from book";
 }
@@ -146,20 +144,18 @@ void Spriteflow::addImgFrame(QString name, int imgID, QString img)
 void Spriteflow::editImgFrame(int index,QString name, int imgID, QString img)
 {
     //Replaces all the parameters of the image frame with given arguments
-//    QPixmap * tmp = findImg(img);
     imgframes.replace(index,{name,imgID,findImg(img)});
     qDebug() << "Edited Animation";
 }
 
-void Spriteflow::removeImgFrame(int)
+void Spriteflow::removeImgFrame(int index)
 {
-
+    imgframes.remove(index);
 }
 
 void Spriteflow::addImgFrame(QString name,int imgID, int ref)
 {
     //Adds to imageframe based on images array index
-//    imgframes.append({name,imgID,images[ref].data()->img});
     imgframes.append({name,imgID,&images->at(ref)->img});
     qDebug() << "Added Animation";
 }
@@ -175,14 +171,8 @@ void Spriteflow::removeImage(int index)
 {
     //Deletes the image and page entry
     qDebug() << "Deleting image" << index;
-//    delete images->at(index);
     images->at(index)->img = nullimage;
     images->removeAt(index);
-//    imgPage * tmp;
-//    tmp = (imgPage*)(&images->at(index));
-//    delete images->at(index);
-//    tmp->img = nullimage;
-//    images->removeAt(index);
 }
 
 void Spriteflow::play(QPixmap img)
