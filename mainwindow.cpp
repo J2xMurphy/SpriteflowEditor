@@ -2,6 +2,23 @@
 #include "./ui_mainwindow.h"
 
 QGraphicsScene * EZScene;
+imgdata::operator QByteArray()
+{
+    QByteArray qb;
+    for (char c :name.toStdString())
+    {
+        qb.append(c);
+    }
+    int wat = (img.height()*img.width()*img.depth())/8;
+    std::cout << img.height() << " * " << img.width() << " * " << img.depth()
+              << " /8 = " << wat << std::endl;
+    qb.append(wat);
+    for (int i = 0;i< 16 ;i++)
+    {
+        qb.append("a");
+    }
+    return qb;
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -87,7 +104,6 @@ void MainWindow::on_last_frame_clicked()
     stopPlayback();
 }
 
-
 void MainWindow::on_start_clicked()
 {
     qDebug() << "Start/Stop Triggered";
@@ -102,7 +118,6 @@ void MainWindow::on_start_clicked()
         previewPixmap->stop();
     }
 }
-
 
 void MainWindow::on_nextframe_clicked()
 {
@@ -125,30 +140,25 @@ void MainWindow::on_actionNew_triggered()
     frametimer->setInterval(frametime);
 }
 
-
 void MainWindow::on_actionOpen_triggered()
 {
 
 }
 
-
 void MainWindow::on_actionSave_triggered()
 {
-
+    saveFile("Chicken",imgList->at(0));
 }
-
 
 void MainWindow::on_actionSave_As_triggered()
 {
 
 }
 
-
 void MainWindow::on_actionExport_triggered()
 {
 
 }
-
 
 void MainWindow::on_actionSettings_triggered()
 {
@@ -237,7 +247,6 @@ void MainWindow::openImage(QString dir)
     previewPixmap->addImage(imgname,qxp);
 
     previewPixmap->play(qxp);
-
 }
 
 void MainWindow::on_Image_List_doubleClicked(const QModelIndex &index)
@@ -388,7 +397,6 @@ void MainWindow::on_ID_slider_sliderPressed()
     stopPlayback();
 }
 
-
 void MainWindow::on_ID_slider_actionTriggered(int action)
 {
     qDebug() <<"Slider Action:" << action << ID_Slider->value();
@@ -409,14 +417,12 @@ void MainWindow::stopPlayback()
     Play_Button->setChecked(false);
 }
 
-
 void MainWindow::on_ID_slider_sliderMoved(int position)
 {
     qDebug() << "Slider Moved";
     previewPixmap->setID(position);
     stopPlayback();
 }
-
 
 void MainWindow::on_Anim_List_doubleClicked(const QModelIndex &index)
 {
@@ -469,7 +475,6 @@ void MainWindow::on_Anim_List_doubleClicked(const QModelIndex &index)
     delete accept_button;
 }
 
-
 void MainWindow::on_Change_List_doubleClicked(const QModelIndex &index)
 {
 
@@ -513,7 +518,6 @@ void MainWindow::on_Change_List_doubleClicked(const QModelIndex &index)
     delete accept_button;
 }
 
-
 void MainWindow::on_delete_Button_clicked()
 {
     qDebug() << "delete clicked";
@@ -554,6 +558,34 @@ void MainWindow::removeImageEntry(int row)
 {
    imgmodel->takeRow(row);
    previewPixmap->removeImage(row);
+}
+
+template <typename oData>
+short MainWindow::saveFile(QString fn, oData data)
+{
+    qDebug() << "Saving file to location: " << fn;
+    if (fn.isEmpty())
+    {
+        return -1;
+    }
+    QFile file(fn);
+    if (file.open(QIODevice::WriteOnly) == false)
+    {
+        qDebug() << "Error opening file";
+        return -2;
+    }
+
+    QDataStream output(&file);
+    QByteArray qb;
+    QBuffer buf(&qb);
+    buf.open(QIODevice::WriteOnly);
+    for (imgdata id: *imgList)
+    {
+        id.img.save(&buf,"PNG");
+    }
+    output << qb;
+    file.close();
+    return 1;
 }
 
 void MainWindow::on_actionAbout_triggered()

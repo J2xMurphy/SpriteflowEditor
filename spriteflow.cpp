@@ -164,6 +164,7 @@ void Spriteflow::addImage(QString name,QPixmap img)
 {
     //Adds the image to images list for later use
     images->append(new imgPage{name,new QPixmap(img)});
+    qDebug() << sizeof(&images->last()->img);
     qDebug() << "Added Image";
 }
 
@@ -247,7 +248,6 @@ bool Spriteflow::sendToScene(QGraphicsScene *scene)
     scene->addItem(this);
     return 0;
 }
-
 
 int Spriteflow::isChangeFrame()
 {

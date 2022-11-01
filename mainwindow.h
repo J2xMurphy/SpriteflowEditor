@@ -22,6 +22,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QMessageBox>
+#include <QBuffer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -30,6 +31,7 @@ QT_END_NAMESPACE
 struct imgdata{
     QString name;
     QPixmap img;
+    operator QByteArray();
 };
 
 class MainWindow : public QMainWindow
@@ -58,69 +60,46 @@ public:
     ~MainWindow();
     bool freshenUp();
     void populate_pointers();
-
     void setupScene();
     void setupHeaders();
 
     void openImage(QString);
     QPixmap getImage(QString);
+    QList<QString> imgNames();//Sends images to select list
+    void stopPlayback();
+    void removeChangeframeEntry(int);
+    void removeAnimEntry(int);
+    void removeImageEntry(int);
+
+    short saveFile(QString,QVariant);
+    template <typename oData> short saveFile(QString,oData);
 
 private slots:
     void update_Pixmap();
-
     void on_last_frame_clicked();
-
     void on_start_clicked();
-
     void on_nextframe_clicked();
-
     void on_actionNew_triggered();
-
     void on_actionOpen_triggered();
-
     void on_actionSave_triggered();
-
     void on_actionSave_As_triggered();
-
     void on_actionExport_triggered();
-
     void on_actionSettings_triggered();
-
     void on_actionImport_Image_triggered();
-
     void on_Image_List_doubleClicked(const QModelIndex &index);
-
     void on_NewChangeframe_clicked();
-
     void on_NewAnimation_clicked();
-
-    QList<QString> imgNames();//Sends images to select list
-
     void on_ID_slider_valueChanged(int value);
-
     void on_ID_slider_sliderPressed();
-
     void on_ID_slider_actionTriggered(int action);
-
-    void stopPlayback();
-
     void on_ID_slider_sliderMoved(int position);
-
     void on_Anim_List_doubleClicked(const QModelIndex &index);
-
     void on_Change_List_doubleClicked(const QModelIndex &index);
-
     void on_delete_Button_clicked();
-
-    void removeChangeframeEntry(int);
-
-    void removeAnimEntry(int);
-
-    void removeImageEntry(int);
-
     void on_actionAbout_triggered();
 
 private:
     Ui::MainWindow *ui;
 };
+
 #endif // MAINWINDOW_H
