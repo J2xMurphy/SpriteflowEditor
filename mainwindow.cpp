@@ -141,8 +141,38 @@ void MainWindow::on_actionNew_triggered()
 }
 
 void MainWindow::on_actionOpen_triggered()
-{
+{   qDebug("Opening custom file");
 
+    QString dir;
+    QFile file("Chicken");
+    file.open(QIODevice::ReadOnly);
+
+    QDataStream input(&file);
+    QByteArray full_file = file.readAll();
+    int a =0;
+    int b =0;
+    bool cont = true;
+    while(b>-1) {
+    a = full_file.indexOf("<!IS->",b);
+    b = full_file.indexOf("<!IE->",a);
+    if (b==-1 || a ==-1)
+        break;
+    QByteArray sub_img = full_file.mid(a+6,b-a-6);
+    qDebug() << "---" << a << b << sub_img.size() << "---";
+    QPixmap pixmap_image;
+    pixmap_image.convertFromImage(QImage::fromData(sub_img));
+
+    QString name = QString("Test #%1").arg(a);
+    imgmodel->appendRow(new QStandardItem(name));
+
+    imgdata newImg;
+    newImg.name = name;
+    newImg.img = pixmap_image;
+    imgList->append(newImg);
+    previewPixmap->addImage(name,pixmap_image);
+
+    previewPixmap->play(pixmap_image);
+    };
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -579,11 +609,15 @@ short MainWindow::saveFile(QString fn, oData data)
     QByteArray qb;
     QBuffer buf(&qb);
     buf.open(QIODevice::WriteOnly);
-    for (imgdata id: *imgList)
+    for (const imgdata &id: *imgList)
     {
+        qDebug() << buf.size();
+        buf.write("<!IS->");
         id.img.save(&buf,"PNG");
+        buf.write("<!IE->");
+        qDebug() << buf.size();
     }
-    output << qb;
+    output << buf.buffer();
     file.close();
     return 1;
 }
