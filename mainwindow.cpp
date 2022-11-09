@@ -141,43 +141,17 @@ void MainWindow::on_actionNew_triggered()
 }
 
 void MainWindow::on_actionOpen_triggered()
-{   qDebug("Opening custom file");
-
+{
+    qDebug("Opening custom file");
     QString dir;
-    QFile file("Chicken");
-    file.open(QIODevice::ReadOnly);
-
-    QDataStream input(&file);
-    QByteArray full_file = file.readAll();
-    int a =0;
-    int b =0;
-    bool cont = true;
-    while(b>-1) {
-    a = full_file.indexOf("<!IS->",b);
-    b = full_file.indexOf("<!IE->",a);
-    if (b==-1 || a ==-1)
-        break;
-    QByteArray sub_img = full_file.mid(a+6,b-a-6);
-    qDebug() << "---" << a << b << sub_img.size() << "---";
-    QPixmap pixmap_image;
-    pixmap_image.convertFromImage(QImage::fromData(sub_img));
-
-    QString name = QString("Test #%1").arg(a);
-    imgmodel->appendRow(new QStandardItem(name));
-
-    imgdata newImg;
-    newImg.name = name;
-    newImg.img = pixmap_image;
-    imgList->append(newImg);
-    previewPixmap->addImage(name,pixmap_image);
-
-    previewPixmap->play(pixmap_image);
-    };
+    dir = QFileDialog::getOpenFileName(this,
+        "Open...", "", "Filetypes (*.sfs)");
+    openFile(dir);
 }
 
 void MainWindow::on_actionSave_triggered()
 {
-    saveFile("Chicken",imgList->at(0));
+    saveFile("Chicken.sfs");
 }
 
 void MainWindow::on_actionSave_As_triggered()
@@ -590,8 +564,17 @@ void MainWindow::removeImageEntry(int row)
    previewPixmap->removeImage(row);
 }
 
-template <typename oData>
-short MainWindow::saveFile(QString fn, oData data)
+void MainWindow::addImgFrame(QString name, int ID, QString image)
+{
+    previewPixmap->addImgFrame(name,ID,image);
+    animModel->appendRow(
+        QList<QStandardItem*>({
+            new QStandardItem(name),
+            new QStandardItem(ID),
+            new QStandardItem(image)}));
+}
+
+short MainWindow::saveFile(QString fn)
 {
     qDebug() << "Saving file to location: " << fn;
     if (fn.isEmpty())
@@ -609,16 +592,79 @@ short MainWindow::saveFile(QString fn, oData data)
     QByteArray qb;
     QBuffer buf(&qb);
     buf.open(QIODevice::WriteOnly);
+
+    for (const ImgFrame imgf: *previewPixmap->getImageFrame())
+    {
+        qDebug() << imgf.name << imgf.ID;
+        buf.write("<!AS->");
+        buf.write(QByteArray::fromStdString(imgf.name.toStdString()));
+        buf.write(",");
+        buf.write(QByteArray::number(imgf.ID));
+        buf.write("<!AE->");
+    }
+
+    for (const ChangeFrame cf: *previewPixmap->getChangeFrame())
+    {
+        qDebug() << cf.goTo << cf.label;
+        buf.write("<!CS->");
+        buf.write(QByteArray::number(cf.goTo));
+        buf.write(",");
+        buf.write(QByteArray::number(cf.label));
+        buf.write("<!CE->");
+    }
+
     for (const imgdata &id: *imgList)
     {
         qDebug() << buf.size();
         buf.write("<!IS->");
+        buf.write(QByteArray::fromStdString(id.name.toStdString()+","));
         id.img.save(&buf,"PNG");
         buf.write("<!IE->");
         qDebug() << buf.size();
     }
     output << buf.buffer();
     file.close();
+    return 1;
+}
+
+short MainWindow::openFile(QString dir){
+
+    QFile file(dir);
+    if (file.open(QIODevice::ReadOnly) == false)
+    {
+        return -2;
+    }
+
+    QDataStream input(&file);
+    QByteArray full_file = file.readAll();
+    int a =0;
+    int b =0;
+    while(b>-1) {
+        a = full_file.indexOf("<!IS->",b);
+        b = full_file.indexOf("<!IE->",a);
+        if (b==-1 || a ==-1)
+            break;
+        int c  = full_file.indexOf(",",a+6);
+
+
+        QByteArray sub_img = full_file.mid(c+1,b-a-6);
+        qDebug() << "---" << a << b << sub_img.size() << "---";
+        QPixmap pixmap_image;
+        pixmap_image.convertFromImage(QImage::fromData(sub_img));
+
+        QString name = full_file.mid(a+6,c-a-6);
+        imgmodel->appendRow(new QStandardItem(name));
+        qDebug() << a << c << b << name;
+
+        imgdata newImg;
+        newImg.name = name;
+        newImg.img = pixmap_image;
+        imgList->append(newImg);
+        previewPixmap->addImage(name,pixmap_image);
+
+        previewPixmap->play(pixmap_image);
+    }
+
     return 1;
 }
 

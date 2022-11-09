@@ -70,9 +70,10 @@ public:
     void removeChangeframeEntry(int);
     void removeAnimEntry(int);
     void removeImageEntry(int);
+    void addImgFrame(QString,int,QString);
 
-    short saveFile(QString,QVariant);
-    template <typename oData> short saveFile(QString,oData);
+    short saveFile(QString);
+    short openFile(QString);
 
 private slots:
     void update_Pixmap();
