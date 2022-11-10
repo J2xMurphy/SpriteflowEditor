@@ -310,10 +310,7 @@ void MainWindow::on_NewChangeframe_clicked()
 
     if (cf_create.exec())
     {
-    previewPixmap->addChangeFrame(gotobox->value(),labelbox->value());
-    changeframemodel->appendRow(
-        QList<QStandardItem*>({new QStandardItem((QString::number(gotobox->value()))),
-            new QStandardItem(QString::number(labelbox->value()))}));
+        addChangeFrame(gotobox->value(),labelbox->value());
     }
 
     delete goto_title;
@@ -564,6 +561,14 @@ void MainWindow::removeImageEntry(int row)
    previewPixmap->removeImage(row);
 }
 
+void MainWindow::addChangeFrame(int gt, int lbl)
+{
+    previewPixmap->addChangeFrame(gt,lbl);
+    changeframemodel->appendRow(
+        QList<QStandardItem*>({new QStandardItem((QString::number(gt))),
+            new QStandardItem(QString::number(lbl))}));
+}
+
 void MainWindow::addImgFrame(QString name, int ID, QString image)
 {
     previewPixmap->addImgFrame(name,ID,image);
@@ -639,13 +644,13 @@ short MainWindow::openFile(QString dir){
     QByteArray full_file = file.readAll();
     int a =0;
     int b =0;
+    qDebug() << "Reading for Images...";
     while(b>-1) {
         a = full_file.indexOf("<!IS->",b);
         b = full_file.indexOf("<!IE->",a);
         if (b==-1 || a ==-1)
             break;
         int c  = full_file.indexOf(",",a+6);
-
 
         QByteArray sub_img = full_file.mid(c+1,b-a-6);
         qDebug() << "---" << a << b << sub_img.size() << "---";
@@ -663,6 +668,25 @@ short MainWindow::openFile(QString dir){
         previewPixmap->addImage(name,pixmap_image);
 
         previewPixmap->play(pixmap_image);
+    }
+
+    a =0;
+    b =0;
+    qDebug() << "Reading for ChangeFrames";
+    while(b>-1) {
+        a = full_file.indexOf("<!CS->",b);
+        b = full_file.indexOf("<!CE->",a);
+        if (b==-1 || a ==-1)
+            break;
+        int c  = full_file.indexOf(",",a+6);
+
+        int goTo;
+        int label;
+
+        QByteArray gt = full_file.mid(a+6,c-a-6);
+        QByteArray lb = full_file.mid(c+1,b-c-1);
+        qDebug() << gt << ":" << lb;
+        addChangeFrame(gt.toInt(),lb.toInt());
     }
 
     return 1;

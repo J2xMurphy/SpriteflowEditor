@@ -70,6 +70,7 @@ public:
     void removeChangeframeEntry(int);
     void removeAnimEntry(int);
     void removeImageEntry(int);
+    void addChangeFrame(int,int);
     void addImgFrame(QString,int,QString);
 
     short saveFile(QString);
