@@ -47,8 +47,8 @@ class Spriteflow : public QGraphicsPixmapItem{
     bool linked = false;  //Refers to whether there is a parent attatched
     qreal scale;          //Makes the image larger or smaller
     bool playing = true;  //Determines whether update does anything or not
-    QPixmap *nullimage;
-    imgPage* blankPage;
+    QPixmap *nullimage;   //If an image does not exist, use this instead
+    imgPage* blankPage;   //If the page does not exist, use this instead
 
 public:
     Spriteflow();
@@ -82,6 +82,7 @@ public:
     void decrement(int = 1);        //Decreases the ID by arg amount, or 1 by default
     void increment(int = 1);        //Increases the ID by arg amoubt, or 1 by default
 
+    QString getSpriteName(QString);//finds the sprite name associated with the imgframe
     float getID();//Getter for current ID
     float getMax();//Getter for the maximum sprite ID
     bool getPlaying() const;//Getter for if the sprite is playing

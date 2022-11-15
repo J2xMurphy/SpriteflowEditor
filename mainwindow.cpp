@@ -598,13 +598,21 @@ short MainWindow::saveFile(QString fn)
     QBuffer buf(&qb);
     buf.open(QIODevice::WriteOnly);
 
-    for (const ImgFrame imgf: *previewPixmap->getImageFrame())
+    for (QStandardItem* aI : animModel->findItems("",Qt::MatchContains))
     {
-        qDebug() << imgf.name << imgf.ID;
+//        auto ql = aI->index();
+//        qDebug() << ql.data().toString() << ql.siblingAtColumn(1).data().toString() << "ptoof";
+        qDebug() << aI->index().siblingAtColumn(0).data().toString()
+                 << aI->index().siblingAtColumn(1).data().toString()
+                 << aI->index().siblingAtColumn(2).data().toString();
         buf.write("<!AS->");
-        buf.write(QByteArray::fromStdString(imgf.name.toStdString()));
+        buf.write(QByteArray::fromStdString(
+                      aI->index().siblingAtColumn(0).data().toString().toStdString()));
         buf.write(",");
-        buf.write(QByteArray::number(imgf.ID));
+        buf.write(QByteArray::number(aI->index().siblingAtColumn(1).data().toInt()));
+        buf.write(":");
+        buf.write(QByteArray::fromStdString(
+                      aI->index().siblingAtColumn(2).data().toString().toStdString()));
         buf.write("<!AE->");
     }
 

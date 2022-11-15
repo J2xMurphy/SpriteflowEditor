@@ -366,6 +366,18 @@ void Spriteflow::increment(int i)
     }
 }
 
+QString Spriteflow::getSpriteName(QString animName)
+{
+    for (const ImgFrame &iF: imgframes)
+    {
+        if (animName == iF.name)
+        {
+            return iF.name;
+        }
+    }
+    return "";
+}
+
 void Spriteflow::updateparams()
 {
     //Pulls data from the parent o update the pixmap position.
