@@ -600,8 +600,6 @@ short MainWindow::saveFile(QString fn)
 
     for (QStandardItem* aI : animModel->findItems("",Qt::MatchContains))
     {
-//        auto ql = aI->index();
-//        qDebug() << ql.data().toString() << ql.siblingAtColumn(1).data().toString() << "ptoof";
         qDebug() << aI->index().siblingAtColumn(0).data().toString()
                  << aI->index().siblingAtColumn(1).data().toString()
                  << aI->index().siblingAtColumn(2).data().toString();
@@ -695,6 +693,34 @@ short MainWindow::openFile(QString dir){
         QByteArray lb = full_file.mid(c+1,b-c-1);
         qDebug() << gt << ":" << lb;
         addChangeFrame(gt.toInt(),lb.toInt());
+    }
+
+    a =0;
+    b =0;
+    qDebug() << "Reading for Animations";
+    while(b>-1) {
+        a = full_file.indexOf("<!AS->",b);
+        b = full_file.indexOf("<!AE->",a);
+        if (b==-1 || a ==-1)
+            break;
+        int c  = full_file.indexOf(",",a+6);
+        int d  = full_file.indexOf(":",c+1);
+
+        QString name;
+        int label;
+        QString sprite;
+
+        name = full_file.mid(a+6,c-a-6);
+        label = (full_file.mid(c+1,d-c-1)).toInt();
+        sprite = full_file.mid(d+1,b-d-1);
+
+        qDebug() << name << ":" << label << ":" << sprite;
+        animModel->appendRow(
+                    QList<QStandardItem*>({
+                        new QStandardItem(name),
+                        new QStandardItem(QString::number(label)),
+                        new QStandardItem(sprite)}));
+        previewPixmap->addImgFrame(name,label,sprite);
     }
 
     return 1;
