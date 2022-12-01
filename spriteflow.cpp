@@ -366,6 +366,56 @@ void Spriteflow::increment(int i)
     }
 }
 
+short Spriteflow::openFile(QString dir)
+{
+    QFile file(dir);
+    if (file.open(QIODevice::ReadOnly) == false)
+    {
+        return -2;
+    }
+
+    QDataStream input(&file);
+    QByteArray full_file = file.readAll();
+    QString afstr = substr(full_file,"<!AS->","<!AE->");
+    QString cfstr = substr(full_file,"<!CS->","<!CE->");
+    QString imstr = substr(full_file,"<!!I+>","<!!I->");
+    return 1;
+}
+
+QList<ChangeFrame> Spriteflow::strToChangeList(QString data)
+{
+    return {};
+}
+
+QList<ImgFrame> Spriteflow::strToImgFrameList(QString data)
+{
+    return {};
+}
+
+QList<imgPage *> Spriteflow::strToimgPageList(QString data)
+{
+    return {};
+}
+
+QString Spriteflow::substr(QByteArray data, QString beginning, QString ending)
+{
+    QString RV;
+    int a = 0;
+    int b = 0;
+    a = data.indexOf(beginning.toStdString(),0);
+    b = data.indexOf(ending.toStdString(),a);
+    if (b==-1 || a ==-1)
+        return "";
+    RV = data.mid(a+6,b-a-6);
+    qDebug() << RV;
+    return RV;
+}
+
+QList<QString> Spriteflow::substrlist(QByteArray data, QString beginning, QString ending)
+{
+    return {};
+}
+
 QString Spriteflow::getSpriteName(QString animName)
 {
     for (const ImgFrame &iF: imgframes)

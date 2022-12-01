@@ -138,6 +138,7 @@ void MainWindow::on_actionNew_triggered()
     animModel->clear();
     frametime = 200;
     frametimer->setInterval(frametime);
+    setupHeaders();
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -598,12 +599,13 @@ short MainWindow::saveFile(QString fn)
     QBuffer buf(&qb);
     buf.open(QIODevice::WriteOnly);
 
+    buf.write("<!AS->");
     for (QStandardItem* aI : animModel->findItems("",Qt::MatchContains))
     {
         qDebug() << aI->index().siblingAtColumn(0).data().toString()
                  << aI->index().siblingAtColumn(1).data().toString()
                  << aI->index().siblingAtColumn(2).data().toString();
-        buf.write("<!AS->");
+        buf.write("[");
         buf.write(QByteArray::fromStdString(
                       aI->index().siblingAtColumn(0).data().toString().toStdString()));
         buf.write(",");
@@ -611,19 +613,23 @@ short MainWindow::saveFile(QString fn)
         buf.write(":");
         buf.write(QByteArray::fromStdString(
                       aI->index().siblingAtColumn(2).data().toString().toStdString()));
-        buf.write("<!AE->");
+        buf.write("]");
     }
+    buf.write("<!AE->");
 
+    buf.write("<!CS->");
     for (const ChangeFrame cf: *previewPixmap->getChangeFrame())
     {
+        buf.write("[");
         qDebug() << cf.goTo << cf.label;
-        buf.write("<!CS->");
         buf.write(QByteArray::number(cf.goTo));
         buf.write(",");
         buf.write(QByteArray::number(cf.label));
-        buf.write("<!CE->");
+        buf.write("]");
     }
+    buf.write("<!CE->");
 
+    buf.write("<!!I+>");
     for (const imgdata &id: *imgList)
     {
         qDebug() << buf.size();
@@ -633,97 +639,99 @@ short MainWindow::saveFile(QString fn)
         buf.write("<!IE->");
         qDebug() << buf.size();
     }
+    buf.write("<!!I->");
     output << buf.buffer();
     file.close();
     return 1;
 }
 
 short MainWindow::openFile(QString dir){
-
-    QFile file(dir);
-    if (file.open(QIODevice::ReadOnly) == false)
-    {
-        return -2;
-    }
-
-    QDataStream input(&file);
-    QByteArray full_file = file.readAll();
-    int a =0;
-    int b =0;
-    qDebug() << "Reading for Images...";
-    while(b>-1) {
-        a = full_file.indexOf("<!IS->",b);
-        b = full_file.indexOf("<!IE->",a);
-        if (b==-1 || a ==-1)
-            break;
-        int c  = full_file.indexOf(",",a+6);
-
-        QByteArray sub_img = full_file.mid(c+1,b-a-6);
-        qDebug() << "---" << a << b << sub_img.size() << "---";
-        QPixmap pixmap_image;
-        pixmap_image.convertFromImage(QImage::fromData(sub_img));
-
-        QString name = full_file.mid(a+6,c-a-6);
-        imgmodel->appendRow(new QStandardItem(name));
-        qDebug() << a << c << b << name;
-
-        imgdata newImg;
-        newImg.name = name;
-        newImg.img = pixmap_image;
-        imgList->append(newImg);
-        previewPixmap->addImage(name,pixmap_image);
-
-        previewPixmap->play(pixmap_image);
-    }
-
-    a =0;
-    b =0;
-    qDebug() << "Reading for ChangeFrames";
-    while(b>-1) {
-        a = full_file.indexOf("<!CS->",b);
-        b = full_file.indexOf("<!CE->",a);
-        if (b==-1 || a ==-1)
-            break;
-        int c  = full_file.indexOf(",",a+6);
-
-        int goTo;
-        int label;
-
-        QByteArray gt = full_file.mid(a+6,c-a-6);
-        QByteArray lb = full_file.mid(c+1,b-c-1);
-        qDebug() << gt << ":" << lb;
-        addChangeFrame(gt.toInt(),lb.toInt());
-    }
-
-    a =0;
-    b =0;
-    qDebug() << "Reading for Animations";
-    while(b>-1) {
-        a = full_file.indexOf("<!AS->",b);
-        b = full_file.indexOf("<!AE->",a);
-        if (b==-1 || a ==-1)
-            break;
-        int c  = full_file.indexOf(",",a+6);
-        int d  = full_file.indexOf(":",c+1);
-
-        QString name;
-        int label;
-        QString sprite;
-
-        name = full_file.mid(a+6,c-a-6);
-        label = (full_file.mid(c+1,d-c-1)).toInt();
-        sprite = full_file.mid(d+1,b-d-1);
-
-        qDebug() << name << ":" << label << ":" << sprite;
-        animModel->appendRow(
-                    QList<QStandardItem*>({
-                        new QStandardItem(name),
-                        new QStandardItem(QString::number(label)),
-                        new QStandardItem(sprite)}));
-        previewPixmap->addImgFrame(name,label,sprite);
-    }
-
+    previewPixmap->openFile(dir);
     return 1;
+//    QFile file(dir);
+//    if (file.open(QIODevice::ReadOnly) == false)
+//    {
+//        return -2;
+//    }
+
+//    QDataStream input(&file);
+//    QByteArray full_file = file.readAll();
+//    int a =0;
+//    int b =0;
+//    qDebug() << "Reading for Images...";
+//    while(b>-1) {
+//        a = full_file.indexOf("<!IS->",b);
+//        b = full_file.indexOf("<!IE->",a);
+//        if (b==-1 || a ==-1)
+//            break;
+//        int c  = full_file.indexOf(",",a+6);
+
+//        QByteArray sub_img = full_file.mid(c+1,b-a-6);
+//        qDebug() << "---" << a << b << sub_img.size() << "---";
+//        QPixmap pixmap_image;
+//        pixmap_image.convertFromImage(QImage::fromData(sub_img));
+
+//        QString name = full_file.mid(a+6,c-a-6);
+//        imgmodel->appendRow(new QStandardItem(name));
+//        qDebug() << a << c << b << name;
+
+//        imgdata newImg;
+//        newImg.name = name;
+//        newImg.img = pixmap_image;
+//        imgList->append(newImg);
+//        previewPixmap->addImage(name,pixmap_image);
+
+//        previewPixmap->play(pixmap_image);
+//    }
+
+//    a =0;
+//    b =0;
+//    qDebug() << "Reading for ChangeFrames";
+//    while(b>-1) {
+//        a = full_file.indexOf("<!CS->",b);
+//        b = full_file.indexOf("<!CE->",a);
+//        if (b==-1 || a ==-1)
+//            break;
+//        int c  = full_file.indexOf(",",a+6);
+
+//        int goTo;
+//        int label;
+
+//        QByteArray gt = full_file.mid(a+6,c-a-6);
+//        QByteArray lb = full_file.mid(c+1,b-c-1);
+//        qDebug() << gt << ":" << lb;
+//        addChangeFrame(gt.toInt(),lb.toInt());
+//    }
+
+//    a =0;
+//    b =0;
+//    qDebug() << "Reading for Animations";
+//    while(b>-1) {
+//        a = full_file.indexOf("<!AS->",b);
+//        b = full_file.indexOf("<!AE->",a);
+//        if (b==-1 || a ==-1)
+//            break;
+//        int c  = full_file.indexOf(",",a+6);
+//        int d  = full_file.indexOf(":",c+1);
+
+//        QString name;
+//        int label;
+//        QString sprite;
+
+//        name = full_file.mid(a+6,c-a-6);
+//        label = (full_file.mid(c+1,d-c-1)).toInt();
+//        sprite = full_file.mid(d+1,b-d-1);
+
+//        qDebug() << name << ":" << label << ":" << sprite;
+//        animModel->appendRow(
+//                    QList<QStandardItem*>({
+//                        new QStandardItem(name),
+//                        new QStandardItem(QString::number(label)),
+//                        new QStandardItem(sprite)}));
+//        previewPixmap->addImgFrame(name,label,sprite);
+//    }
+
+//    return 1;
 }
 
 void MainWindow::on_actionAbout_triggered()

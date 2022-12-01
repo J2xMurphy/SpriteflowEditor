@@ -8,6 +8,8 @@
 #include <QDebug>
 #include <QGraphicsPixmapItem>
 #include <iostream>
+#include <QFile>
+#include <QByteArray>
 
 extern QGraphicsScene * EZScene;
 
@@ -88,6 +90,12 @@ public:
     bool getPlaying() const;//Getter for if the sprite is playing
     void setID(float newID);//Setter for the current ID
     void setMax(float newMax);//Setter for the maximum sprite ID
+    short openFile(QString);
+    QList<ChangeFrame> strToChangeList(QString);
+    QList<ImgFrame> strToImgFrameList(QString);
+    QList<imgPage*> strToimgPageList(QString);
+    QString substr(QByteArray, QString, QString);
+    QList<QString> substrlist(QByteArray, QString, QString);
 
 
 public slots:
