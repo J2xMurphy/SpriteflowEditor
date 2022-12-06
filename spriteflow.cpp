@@ -376,30 +376,49 @@ short Spriteflow::openFile(QString dir)
 
     QDataStream input(&file);
     QByteArray full_file = file.readAll();
-    QString afstr = substr(full_file,"<!AS->","<!AE->");
-    QString cfstr = substr(full_file,"<!CS->","<!CE->");
-    QString imstr = substr(full_file,"<!!I+>","<!!I->");
+    QByteArray afstr = substr(full_file,"<!AS->","<!AE->");
+    QByteArray cfstr = substr(full_file,"<!CS->","<!CE->");
+    QByteArray imstr = substr(full_file,"<!!I+>","<!!I->");
+    QList<QString> animlist = substrlist(afstr,"[","]");
+    QList<QString> cflist = substrlist(cfstr,"[","]");
+    QList<QByteArray> imlist = subarrlist(imstr,"<!IS->","<!IE->");
     return 1;
 }
+//"[0,1][2,3][4,5][10,0]"
+QList<ChangeFrame> Spriteflow::strToChangeList(QList<QString> cflist)
+{
+    QList<ChangeFrame> RV;
+    for (const QString &data:cflist){
+        int a = data.indexOf(",");
+        int first = data.mid(0,a).toInt();
+        int second = data.mid(a,data.length()-a-1).toInt();
+        RV.append({first,second});
+    }
+    return RV;
+}
+//"[first,2:double-left.png][second,5:double-right.png][third,7:Missing.png][fourth,8:play--v1.png]"
+QList<ImgFrame> Spriteflow::strToImgFrameList(QList<QString> animlist)
+{
+    QList<ImgFrame> RV;
+    for (const QString &data:animlist){
+        int a = data.indexOf(",");
+        int b = data.indexOf(":");
+        QString first = data.mid(0,a);
+        int second = data.mid(a+1,b-a-1).toInt();
+        QString tmp = data.mid(b+1,data.length()-b-1);
+        RV.append({first,second,findImg(tmp)});
+    }
+    return RV;
+}
 
-QList<ChangeFrame> Spriteflow::strToChangeList(QString data)
+QList<imgPage *> Spriteflow::strToimgPageList(QList<QByteArray> imlist)
 {
     return {};
 }
 
-QList<ImgFrame> Spriteflow::strToImgFrameList(QString data)
+QByteArray Spriteflow::substr(QByteArray data, QString beginning, QString ending)
 {
-    return {};
-}
-
-QList<imgPage *> Spriteflow::strToimgPageList(QString data)
-{
-    return {};
-}
-
-QString Spriteflow::substr(QByteArray data, QString beginning, QString ending)
-{
-    QString RV;
+    QByteArray RV;
     int a = 0;
     int b = 0;
     a = data.indexOf(beginning.toStdString(),0);
@@ -413,7 +432,38 @@ QString Spriteflow::substr(QByteArray data, QString beginning, QString ending)
 
 QList<QString> Spriteflow::substrlist(QByteArray data, QString beginning, QString ending)
 {
-    return {};
+    QList<QString> RV;
+    int a = 0;
+    int b = 0;
+    qDebug() << "Getting substr list...";
+    while(b>-1) {
+        a = data.indexOf(beginning.toStdString(),b);
+        b = data.indexOf(ending.toStdString(),a);
+        if (b==-1 || a ==-1)
+            break;
+        QString mid = data.mid(a+beginning.length(),b-a-beginning.length());
+        a = b;
+        RV.append(mid);
+        }
+    return RV;
+}
+
+QList<QByteArray> Spriteflow::subarrlist(QByteArray data, QString beginning, QString ending)
+{
+    QList<QByteArray> RV;
+    int a = 0;
+    int b = 0;
+    qDebug() << "Getting substr list...";
+    while(b>-1) {
+        a = data.indexOf(beginning.toStdString(),b);
+        b = data.indexOf(ending.toStdString(),a);
+        if (b==-1 || a ==-1)
+            break;
+        QByteArray mid = data.mid(a+beginning.length(),b-a-beginning.length());
+        a = b;
+        RV.append(mid);
+        }
+    return RV;
 }
 
 QString Spriteflow::getSpriteName(QString animName)

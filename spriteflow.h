@@ -91,11 +91,13 @@ public:
     void setID(float newID);//Setter for the current ID
     void setMax(float newMax);//Setter for the maximum sprite ID
     short openFile(QString);
-    QList<ChangeFrame> strToChangeList(QString);
-    QList<ImgFrame> strToImgFrameList(QString);
-    QList<imgPage*> strToimgPageList(QString);
-    QString substr(QByteArray, QString, QString);
+    void extracted(QList<QString> &cflist, QList<ChangeFrame> &RV);
+    QList<ChangeFrame> strToChangeList(QList<QString>);
+    QList<ImgFrame> strToImgFrameList(QList<QString>);
+    QList<imgPage*> strToimgPageList(QList<QByteArray>);
+    QByteArray substr(QByteArray, QString, QString);
     QList<QString> substrlist(QByteArray, QString, QString);
+    QList<QByteArray> subarrlist(QByteArray, QString, QString);
 
 
 public slots:
