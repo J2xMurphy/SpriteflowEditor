@@ -57,14 +57,17 @@ public:
     Spriteflow(int*, int*);        //Constructor to auto inherit position
     void update();                 //Call per frame to update image
     void addChangeFrame(int,int);  //When A frame is reached go to B frame
+    void addChangeFrame(QList<ChangeFrame>);// Given a list of changeframes, adds them all
     void editChangeFrame(int,int,int); //Changes a ChangeFrame at index a0
     void removeChangeFrame(int);   //Removes ChangeFrame at index a0
     void addImgFrame(QString,int,QPixmap); //When A frame is reached, set img to arg
     void addImgFrame(QString,int,QString); //When A frame is reached, set img by name
     void addImgFrame(QString,int,int);     //When A frame is reached, set list img index
+    void addImgFrame(QList<ImgFrame>);     //Given a list of ImgFrames, adds them all
     void editImgFrame(int,QString,int,QString);//Changes an Imgframe at index a0
     void removeImgFrame(int);      //Removes ImgFrame at index a0
     void addImage(QString,QPixmap);//Adds img into saved list
+    void addImage(QList<imgPage*>);//Given a list of images, adds them all
     void removeImage(int);         //Deletes Image at a0;
     void play(QPixmap);            //Sets the current image to arg
     void play(int);                //Sets the current image to arg by index
@@ -81,6 +84,7 @@ public:
     QPixmap** findImg(QString);     //Returns the image associated with a name
     QList<ChangeFrame>* getChangeFrame();//Returns the changeframe list
     QList<ImgFrame>* getImageFrame();//    Returns the imageframe list
+    QList<imgPage*>* getImagePages();//    Returns the imageframe list
     void decrement(int = 1);        //Decreases the ID by arg amount, or 1 by default
     void increment(int = 1);        //Increases the ID by arg amoubt, or 1 by default
 

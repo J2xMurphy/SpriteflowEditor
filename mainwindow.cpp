@@ -223,7 +223,6 @@ void MainWindow::on_actionSettings_triggered()
     previewPixmap->play();
 }
 
-
 void MainWindow::on_actionImport_Image_triggered()
 {
     QList<QString> dir;
@@ -263,12 +262,16 @@ void MainWindow::on_Image_List_doubleClicked(const QModelIndex &index)
 
 QPixmap MainWindow::getImage(QString target)
 {
-    for(const imgdata id : *imgList){
-        if (target == id.name)
+    qDebug() << "Finding image:" << target;
+    for(imgPage * ip : *previewPixmap->getImagePages()){
+        if (target == ip->name)
         {
-            return id.img;
+            qDebug() << "Found" << target;
+            return *ip->img;
         }
     }
+
+    qDebug() << "Unfound " << target;
     QPixmap fail;
     return fail;
 }
@@ -647,91 +650,27 @@ short MainWindow::saveFile(QString fn)
 
 short MainWindow::openFile(QString dir){
     previewPixmap->openFile(dir);
+    for (const ImgFrame &eyef : *previewPixmap->getImageFrame())
+    {
+        animModel->appendRow(
+            QList<QStandardItem*>({
+                new QStandardItem(eyef.name),
+                new QStandardItem(QString::number(eyef.ID)),
+                new QStandardItem("unsure")}));
+    }
+    for (ChangeFrame cf:*previewPixmap->getChangeFrame())
+    {
+        changeframemodel->appendRow({
+                new QStandardItem(QString::number(cf.goTo)),
+                new QStandardItem(QString::number(cf.label))});
+    }
+    for (imgPage * ip : *previewPixmap->getImagePages())
+    {
+        imgmodel->appendRow(new QStandardItem(ip->name));
+        imgList->append({ip->name,*ip->img});
+    }
+
     return 1;
-//    QFile file(dir);
-//    if (file.open(QIODevice::ReadOnly) == false)
-//    {
-//        return -2;
-//    }
-
-//    QDataStream input(&file);
-//    QByteArray full_file = file.readAll();
-//    int a =0;
-//    int b =0;
-//    qDebug() << "Reading for Images...";
-//    while(b>-1) {
-//        a = full_file.indexOf("<!IS->",b);
-//        b = full_file.indexOf("<!IE->",a);
-//        if (b==-1 || a ==-1)
-//            break;
-//        int c  = full_file.indexOf(",",a+6);
-
-//        QByteArray sub_img = full_file.mid(c+1,b-a-6);
-//        qDebug() << "---" << a << b << sub_img.size() << "---";
-//        QPixmap pixmap_image;
-//        pixmap_image.convertFromImage(QImage::fromData(sub_img));
-
-//        QString name = full_file.mid(a+6,c-a-6);
-//        imgmodel->appendRow(new QStandardItem(name));
-//        qDebug() << a << c << b << name;
-
-//        imgdata newImg;
-//        newImg.name = name;
-//        newImg.img = pixmap_image;
-//        imgList->append(newImg);
-//        previewPixmap->addImage(name,pixmap_image);
-
-//        previewPixmap->play(pixmap_image);
-//    }
-
-//    a =0;
-//    b =0;
-//    qDebug() << "Reading for ChangeFrames";
-//    while(b>-1) {
-//        a = full_file.indexOf("<!CS->",b);
-//        b = full_file.indexOf("<!CE->",a);
-//        if (b==-1 || a ==-1)
-//            break;
-//        int c  = full_file.indexOf(",",a+6);
-
-//        int goTo;
-//        int label;
-
-//        QByteArray gt = full_file.mid(a+6,c-a-6);
-//        QByteArray lb = full_file.mid(c+1,b-c-1);
-//        qDebug() << gt << ":" << lb;
-//        addChangeFrame(gt.toInt(),lb.toInt());
-//    }
-
-//    a =0;
-//    b =0;
-//    qDebug() << "Reading for Animations";
-//    while(b>-1) {
-//        a = full_file.indexOf("<!AS->",b);
-//        b = full_file.indexOf("<!AE->",a);
-//        if (b==-1 || a ==-1)
-//            break;
-//        int c  = full_file.indexOf(",",a+6);
-//        int d  = full_file.indexOf(":",c+1);
-
-//        QString name;
-//        int label;
-//        QString sprite;
-
-//        name = full_file.mid(a+6,c-a-6);
-//        label = (full_file.mid(c+1,d-c-1)).toInt();
-//        sprite = full_file.mid(d+1,b-d-1);
-
-//        qDebug() << name << ":" << label << ":" << sprite;
-//        animModel->appendRow(
-//                    QList<QStandardItem*>({
-//                        new QStandardItem(name),
-//                        new QStandardItem(QString::number(label)),
-//                        new QStandardItem(sprite)}));
-//        previewPixmap->addImgFrame(name,label,sprite);
-//    }
-
-//    return 1;
 }
 
 void MainWindow::on_actionAbout_triggered()

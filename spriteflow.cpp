@@ -113,6 +113,13 @@ void Spriteflow::addChangeFrame(int cgoto, int clabel)
     qDebug() << "Added Changeframe";
 }
 
+void Spriteflow::addChangeFrame(QList<ChangeFrame> cfl)
+{
+    //Just adds all the list items to the changeframe list
+    changeframes.append(cfl);
+    qDebug() << "Added Changeframe list";
+}
+
 void Spriteflow::editChangeFrame(int index, int cgoto, int clabel)
 {
     //Reaplces all parameters of the changeframe at index with given arguments
@@ -160,12 +167,27 @@ void Spriteflow::addImgFrame(QString name,int imgID, int ref)
     qDebug() << "Added Animation";
 }
 
+void Spriteflow::addImgFrame(QList<ImgFrame> ifl)
+{
+    //Just adds all the ImgFrames to the imageframe list
+    imgframes.append(ifl);
+    qDebug() << "Added Animation list";
+}
+
 void Spriteflow::addImage(QString name,QPixmap img)
 {
     //Adds the image to images list for later use
     images->append(new imgPage{name,new QPixmap(img)});
     qDebug() << sizeof(&images->last()->img);
     qDebug() << "Added Image";
+}
+
+void Spriteflow::addImage(QList<imgPage *> ipl)
+{
+    //Adds all the images in the list to the imagebook
+    images->append(ipl);
+    qDebug() << sizeof(&images->last()->img);
+    qDebug() << "Added Image list";
 }
 
 void Spriteflow::removeImage(int index)
@@ -346,6 +368,11 @@ QList<ImgFrame>* Spriteflow::getImageFrame()
     return &imgframes;
 }
 
+QList<imgPage *> *Spriteflow::getImagePages()
+{
+    return images;
+}
+
 void Spriteflow::decrement(int i)
 {
     stop();
@@ -382,6 +409,12 @@ short Spriteflow::openFile(QString dir)
     QList<QString> animlist = substrlist(afstr,"[","]");
     QList<QString> cflist = substrlist(cfstr,"[","]");
     QList<QByteArray> imlist = subarrlist(imstr,"<!IS->","<!IE->");
+    QList<imgPage*> ipl = strToimgPageList(imlist);
+    addImage(ipl);
+    QList<ChangeFrame> cfl = strToChangeList(cflist);
+    addChangeFrame(cfl);
+    QList<ImgFrame> ifl = strToImgFrameList(animlist);
+    addImgFrame(ifl);
     return 1;
 }
 //"[0,1][2,3][4,5][10,0]"
@@ -391,7 +424,7 @@ QList<ChangeFrame> Spriteflow::strToChangeList(QList<QString> cflist)
     for (const QString &data:cflist){
         int a = data.indexOf(",");
         int first = data.mid(0,a).toInt();
-        int second = data.mid(a,data.length()-a-1).toInt();
+        int second = data.mid(a+1,data.length()-a-1).toInt();
         RV.append({first,second});
     }
     return RV;
@@ -413,7 +446,20 @@ QList<ImgFrame> Spriteflow::strToImgFrameList(QList<QString> animlist)
 
 QList<imgPage *> Spriteflow::strToimgPageList(QList<QByteArray> imlist)
 {
-    return {};
+    QList<imgPage *> RV;
+    for (const QByteArray &data:imlist){
+        int a = data.indexOf(",");
+        QString first = data.mid(0,a);
+        QPixmap * second = new QPixmap;
+        QByteArray sub_img = data.mid(a+1,data.length()-a-1);
+        second->convertFromImage(QImage::fromData(sub_img));
+        qDebug() << sub_img.length();
+        imgPage * tmp = new imgPage();
+        tmp->name = first;
+        tmp->img = second;
+        RV.append(tmp);
+    }
+    return RV;
 }
 
 QByteArray Spriteflow::substr(QByteArray data, QString beginning, QString ending)
@@ -442,7 +488,6 @@ QList<QString> Spriteflow::substrlist(QByteArray data, QString beginning, QStrin
         if (b==-1 || a ==-1)
             break;
         QString mid = data.mid(a+beginning.length(),b-a-beginning.length());
-        a = b;
         RV.append(mid);
         }
     return RV;
@@ -460,7 +505,6 @@ QList<QByteArray> Spriteflow::subarrlist(QByteArray data, QString beginning, QSt
         if (b==-1 || a ==-1)
             break;
         QByteArray mid = data.mid(a+beginning.length(),b-a-beginning.length());
-        a = b;
         RV.append(mid);
         }
     return RV;
