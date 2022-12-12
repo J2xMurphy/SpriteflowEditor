@@ -94,10 +94,10 @@ public:
     bool getPlaying() const;//Getter for if the sprite is playing
     void setID(float newID);//Setter for the current ID
     void setMax(float newMax);//Setter for the maximum sprite ID
-    short openFile(QString);
+    QList<QString> openFile(QString);
     void extracted(QList<QString> &cflist, QList<ChangeFrame> &RV);
     QList<ChangeFrame> strToChangeList(QList<QString>);
-    QList<ImgFrame> strToImgFrameList(QList<QString>);
+    QList<ImgFrame> strToImgFrameList(QList<QString>,QList<QString>*);
     QList<imgPage*> strToimgPageList(QList<QByteArray>);
     QByteArray substr(QByteArray, QString, QString);
     QList<QString> substrlist(QByteArray, QString, QString);

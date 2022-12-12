@@ -41,6 +41,7 @@ MainWindow::~MainWindow()
 bool MainWindow::freshenUp()
 {
     qDebug() << "Initializing";
+    openedFile = "";
     frametime = 200;
     imgList = new QList<imgdata>;
     imgmodel = new QStandardItemModel();
@@ -152,12 +153,17 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    saveFile("Chicken.sfs");
+    if (openedFile == "")
+    {
+        return;
+    }
+    saveFile(openedFile);
 }
 
 void MainWindow::on_actionSave_As_triggered()
 {
-
+    openedFile = QFileDialog::getSaveFileName(this,"Save as...","","*.sfs");
+    saveFile(openedFile);
 }
 
 void MainWindow::on_actionExport_triggered()
@@ -257,7 +263,8 @@ void MainWindow::on_Image_List_doubleClicked(const QModelIndex &index)
 {
     qDebug() << "Image Selected";
     QString target = index.data().toString();
-    previewPixmap->play(getImage(target));
+    previewPixmap->play(target);
+    EZScene->setSceneRect(previewPixmap->sceneBoundingRect());
 }
 
 QPixmap MainWindow::getImage(QString target)
@@ -649,14 +656,17 @@ short MainWindow::saveFile(QString fn)
 }
 
 short MainWindow::openFile(QString dir){
-    previewPixmap->openFile(dir);
+    QList<QString> leftover = previewPixmap->openFile(dir);
+    openedFile = dir;
+    int tmp = 0;
     for (const ImgFrame &eyef : *previewPixmap->getImageFrame())
     {
         animModel->appendRow(
             QList<QStandardItem*>({
                 new QStandardItem(eyef.name),
                 new QStandardItem(QString::number(eyef.ID)),
-                new QStandardItem("unsure")}));
+                new QStandardItem(leftover[tmp])}));
+        tmp++;
     }
     for (ChangeFrame cf:*previewPixmap->getChangeFrame())
     {

@@ -54,6 +54,7 @@ class MainWindow : public QMainWindow
     Spriteflow         * previewPixmap;
     QTimer             * frametimer;
 
+    QString openedFile;
     int frametime;
 public:
     MainWindow(QWidget *parent = nullptr);

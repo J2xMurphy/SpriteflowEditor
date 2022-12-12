@@ -393,12 +393,12 @@ void Spriteflow::increment(int i)
     }
 }
 
-short Spriteflow::openFile(QString dir)
+QList<QString> Spriteflow::openFile(QString dir)
 {
     QFile file(dir);
     if (file.open(QIODevice::ReadOnly) == false)
     {
-        return -2;
+        return {};
     }
 
     QDataStream input(&file);
@@ -413,9 +413,10 @@ short Spriteflow::openFile(QString dir)
     addImage(ipl);
     QList<ChangeFrame> cfl = strToChangeList(cflist);
     addChangeFrame(cfl);
-    QList<ImgFrame> ifl = strToImgFrameList(animlist);
+    QList<QString> leftover;
+    QList<ImgFrame> ifl = strToImgFrameList(animlist,&leftover);
     addImgFrame(ifl);
-    return 1;
+    return leftover;
 }
 //"[0,1][2,3][4,5][10,0]"
 QList<ChangeFrame> Spriteflow::strToChangeList(QList<QString> cflist)
@@ -430,7 +431,7 @@ QList<ChangeFrame> Spriteflow::strToChangeList(QList<QString> cflist)
     return RV;
 }
 //"[first,2:double-left.png][second,5:double-right.png][third,7:Missing.png][fourth,8:play--v1.png]"
-QList<ImgFrame> Spriteflow::strToImgFrameList(QList<QString> animlist)
+QList<ImgFrame> Spriteflow::strToImgFrameList(QList<QString> animlist,QList<QString>* leftover)
 {
     QList<ImgFrame> RV;
     for (const QString &data:animlist){
@@ -439,6 +440,7 @@ QList<ImgFrame> Spriteflow::strToImgFrameList(QList<QString> animlist)
         QString first = data.mid(0,a);
         int second = data.mid(a+1,b-a-1).toInt();
         QString tmp = data.mid(b+1,data.length()-b-1);
+        leftover->append(tmp);
         RV.append({first,second,findImg(tmp)});
     }
     return RV;
@@ -467,12 +469,13 @@ QByteArray Spriteflow::substr(QByteArray data, QString beginning, QString ending
     QByteArray RV;
     int a = 0;
     int b = 0;
+    qDebug() << "Getting substring";
     a = data.indexOf(beginning.toStdString(),0);
     b = data.indexOf(ending.toStdString(),a);
     if (b==-1 || a ==-1)
         return "";
     RV = data.mid(a+6,b-a-6);
-    qDebug() << RV;
+//    qDebug() << RV;
     return RV;
 }
 
